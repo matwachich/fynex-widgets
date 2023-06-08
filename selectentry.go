@@ -25,6 +25,7 @@ func NewSelectEntryEx() *SelectEntryEx {
 	return sel
 }
 
+func (sel *SelectEntryEx) ReadOnly() bool { return sel.readOnly }
 func (sel *SelectEntryEx) SetReadOnly(b bool) {
 	sel.readOnly = b
 	if b {

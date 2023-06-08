@@ -41,6 +41,7 @@ func NewNumEntry() *NumEntry {
 	return n
 }
 
+func (n *NumEntry) ReadOnly() bool { return n.readOnly }
 func (n *NumEntry) SetReadOnly(b bool) {
 	n.readOnly = b
 	n.Refresh()

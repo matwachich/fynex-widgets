@@ -90,6 +90,9 @@ func (d *DateEntry) GetTime() (time.Time, error) {
 	return time.ParseInLocation("02/01/2006", d.Text, time.Local)
 }
 
+func (d *DateEntry) ReadOnly() bool {
+	return d.readOnly
+}
 func (d *DateEntry) SetReadOnly(b bool) {
 	d.readOnly = b
 	if cnv := fyne.CurrentApp().Driver().CanvasForObject(d); b && cnv != nil && cnv.Focused() == d {

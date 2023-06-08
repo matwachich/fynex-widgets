@@ -75,6 +75,7 @@ func (e *EntryEx) AcceptsTab() bool {
 	return e.AcceptTab
 }
 
+func (e *EntryEx) ReadOnly() bool { return e.readOnly }
 func (e *EntryEx) SetReadOnly(b bool) {
 	e.readOnly = b
 	if cnv := fyne.CurrentApp().Driver().CanvasForObject(e); b && cnv != nil && cnv.Focused() == e {
