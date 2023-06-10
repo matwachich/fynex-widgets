@@ -36,8 +36,8 @@ func (sel *SelectEntryEx) SetReadOnly(b bool) {
 }
 
 func (sel *SelectEntryEx) SetText(s string) {
-	sel.SelectEntry.CursorColumn = -1
-	sel.SelectEntry.CursorRow = -1
+	sel.SelectEntry.CursorColumn = 0
+	sel.SelectEntry.CursorRow = 0
 	sel.SelectEntry.SetText(s)
 }
 

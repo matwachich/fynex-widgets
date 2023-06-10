@@ -85,8 +85,8 @@ func (e *EntryEx) SetReadOnly(b bool) {
 }
 
 func (e *EntryEx) SetText(s string) {
-	e.Entry.CursorColumn = -1
-	e.Entry.CursorRow = -1
+	e.Entry.CursorColumn = 0
+	e.Entry.CursorRow = 0
 	e.Entry.SetText(s)
 }
 
