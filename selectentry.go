@@ -35,6 +35,12 @@ func (sel *SelectEntryEx) SetReadOnly(b bool) {
 	}
 }
 
+func (sel *SelectEntryEx) SetText(s string) {
+	sel.SelectEntry.CursorColumn = -1
+	sel.SelectEntry.CursorRow = -1
+	sel.SelectEntry.SetText(s)
+}
+
 // FocusGained is a hook called by the focus handling logic after this object gained the focus.
 func (sel *SelectEntryEx) FocusGained() {
 	sel.SelectEntry.FocusGained()

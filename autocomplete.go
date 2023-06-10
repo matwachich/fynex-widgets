@@ -162,6 +162,8 @@ func (ac *AutoComplete) ListVisible() bool {
 
 func (ac *AutoComplete) SetText(s string) {
 	ac.pause = true
+	ac.Entry.CursorColumn = -1
+	ac.Entry.CursorRow = -1
 	ac.Entry.SetText(s)
 	ac.pause = false
 }
