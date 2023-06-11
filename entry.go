@@ -61,10 +61,9 @@ func (e *EntryEx) ExtendBaseWidget(wid fyne.Widget) {
 
 func (e *EntryEx) onChanged(s string) {
 	if !e.MultiLine && e.CaseModifier != nil {
-		caret := e.CursorColumn
 		s = e.CaseModifier(s)
-		e.SetText(s)
-		e.CursorColumn = caret
+		e.Text = s
+		e.Refresh()
 	}
 	if e.OnChanged != nil {
 		e.OnChanged(s)
