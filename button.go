@@ -10,9 +10,8 @@ import (
 type Button struct {
 	widget.Button
 
-	Menu *fyne.Menu
-
-	OnRequestMenu func() *fyne.Menu
+	Menu          *fyne.Menu
+	OnMenuRequest func() // if set, called just before showing popup menu
 
 	ToolTipable
 }
@@ -76,8 +75,8 @@ func (b *Button) TappedSecondary(e *fyne.PointEvent) {
 	if b.Disabled() {
 		return
 	}
-	if b.OnRequestMenu != nil {
-		b.Menu = b.OnRequestMenu()
+	if b.OnMenuRequest != nil {
+		b.OnMenuRequest()
 	}
 	if b.Menu != nil && len(b.Menu.Items) > 0 {
 		widget.ShowPopUpMenuAtPosition(b.Menu, fyne.CurrentApp().Driver().CanvasForObject(b), e.AbsolutePosition)
