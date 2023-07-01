@@ -7,16 +7,64 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+type AutoCompleteDataProvider interface {
+	Length() int
+	Create() fyne.CanvasObject
+	Update(id int, co fyne.CanvasObject)
+	Complete(id int) string
+}
+
+func (ac *AutoComplete) data_length() int {
+	if ac.Data == nil {
+		return len(ac.Options)
+	} else {
+		return ac.Data.Length()
+	}
+}
+
+func (ac *AutoComplete) data_create() fyne.CanvasObject {
+	if ac.Data == nil {
+		return &widget.Label{}
+	} else {
+		return ac.Data.Create()
+	}
+}
+
+func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
+	if ac.Data == nil {
+		co.(*widget.Label).Text = ac.Options[id]
+	} else {
+		ac.Data.Update(id, co)
+	}
+}
+
+func (ac *AutoComplete) data_complete(id int) string {
+	if ac.Data == nil {
+		if ac.OnCompleted == nil {
+			return ac.Options[id]
+		} else {
+			return ac.OnCompleted(ac.Options[id])
+		}
+	} else {
+		return ac.Data.Complete(id)
+	}
+}
+
+// ----------------------------------------------
+
 type AutoComplete struct {
-	widget.Entry
+	widget.Entry // AutoComplete extends widget.Entry
 
 	// autocomplete
-	Options           []string
-	OnCompleted       func(string) string
+	Options     []string
+	OnCompleted func(string) string
+
+	Data AutoCompleteDataProvider
+
 	SubmitOnCompleted bool // if true, completing from list triggers OnSubmited
 
-	CustomCreate func() fyne.CanvasObject
-	CustomUpdate func(id widget.ListItemID, co fyne.CanvasObject)
+	/*CustomCreate func() fyne.CanvasObject
+	CustomUpdate func(id widget.ListItemID, co fyne.CanvasObject)*/
 
 	popup    *widget.PopUp
 	list     *autoCompleteList
@@ -125,7 +173,8 @@ func (ac *AutoComplete) ListShow() {
 	if ac.pause || ac.readonly {
 		return
 	}
-	if len(ac.Options) <= 0 {
+
+	if ac.data_length() <= 0 {
 		ac.ListHide()
 		return
 	}
@@ -162,8 +211,8 @@ func (ac *AutoComplete) ListVisible() bool {
 
 func (ac *AutoComplete) SetText(s string) {
 	ac.pause = true
-	ac.Entry.CursorColumn = 0
-	ac.Entry.CursorRow = 0
+	/*ac.Entry.CursorColumn = 0
+	ac.Entry.CursorRow = 0*/ // really needed ???
 	ac.Entry.SetText(s)
 	ac.pause = false
 }
@@ -176,16 +225,17 @@ func (ac *AutoComplete) Move(pos fyne.Position) {
 	}
 }
 
-func (ac *AutoComplete) setTextFromList(s string) {
+func (ac *AutoComplete) setTextFromList(id widget.ListItemID) {
 	ac.popup.Hide()
+
 	ac.pause = true
-	if ac.OnCompleted != nil {
-		s = ac.OnCompleted(s)
-	}
-	ac.Entry.Text = s
-	ac.Entry.CursorColumn = len([]rune(s))
+
+	ac.Entry.Text = ac.data_complete(id)
+	ac.Entry.CursorColumn = len(ac.Entry.Text)
 	ac.Entry.Refresh()
+
 	ac.pause = false
+
 	if ac.SubmitOnCompleted && ac.OnSubmitted != nil {
 		ac.OnSubmitted(ac.Entry.Text)
 	}
@@ -247,32 +297,27 @@ type autoCompleteList struct {
 func newAutoCompleteList(parent *AutoComplete) *autoCompleteList {
 	list := &autoCompleteList{parent: parent}
 	list.ExtendBaseWidget(list)
-	list.List.Length = func() int { return len(parent.Options) }
+
+	list.List.Length = func() int {
+		return parent.data_length()
+	}
 	list.List.CreateItem = func() fyne.CanvasObject {
-		var item *autoCompleteListItem
-		if parent.CustomCreate != nil {
-			item = newAutoCompleteListItem(parent, parent.CustomCreate())
-		} else {
-			item = newAutoCompleteListItem(parent, widget.NewLabel(""))
-		}
-		return item
+		return newAutoCompleteListItem(parent, parent.data_create())
 	}
 	list.List.UpdateItem = func(id widget.ListItemID, co fyne.CanvasObject) {
-		if parent.CustomUpdate != nil {
-			parent.CustomUpdate(id, co.(*autoCompleteListItem).co)
-		} else {
-			co.(*autoCompleteListItem).co.(*widget.Label).Text = parent.Options[id]
-		}
 		co.(*autoCompleteListItem).id = id
+		parent.data_update(id, co.(*autoCompleteListItem).co)
 		parent.list.SetItemHeight(id, co.MinSize().Height)
 		co.Refresh()
 	}
+
 	list.List.OnSelected = func(id widget.ListItemID) {
 		parent.selected = id
 	}
 	list.List.OnUnselected = func(_ widget.ListItemID) {
 		parent.selected = -1
 	}
+
 	return list
 }
 
@@ -302,7 +347,7 @@ func (list *autoCompleteList) TypedKey(k *fyne.KeyEvent) {
 		}
 	case fyne.KeyReturn, fyne.KeyEnter:
 		if list.parent.selected >= 0 {
-			list.parent.setTextFromList(list.parent.Options[list.parent.selected])
+			list.parent.setTextFromList(list.parent.selected)
 		} else {
 			list.parent.ListHide()
 			list.parent.Entry.TypedKey(k)
@@ -336,7 +381,7 @@ func (item *autoCompleteListItem) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func (item *autoCompleteListItem) Tapped(_ *fyne.PointEvent) {
-	item.parent.setTextFromList(item.parent.Options[item.id])
+	item.parent.setTextFromList(item.id)
 }
 
 func (item *autoCompleteListItem) MouseIn(_ *desktop.MouseEvent)    { item.parent.list.Select(item.id) }
