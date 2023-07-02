@@ -14,44 +14,6 @@ type AutoCompleteDataProvider interface {
 	Complete(id int) string
 }
 
-func (ac *AutoComplete) data_length() int {
-	if ac.Data == nil {
-		return len(ac.Options)
-	} else {
-		return ac.Data.Length()
-	}
-}
-
-func (ac *AutoComplete) data_create() fyne.CanvasObject {
-	if ac.Data == nil {
-		return &widget.Label{}
-	} else {
-		return ac.Data.Create()
-	}
-}
-
-func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
-	if ac.Data == nil {
-		co.(*widget.Label).Text = ac.Options[id]
-	} else {
-		ac.Data.Update(id, co)
-	}
-}
-
-func (ac *AutoComplete) data_complete(id int) string {
-	if ac.Data == nil {
-		if ac.OnCompleted == nil {
-			return ac.Options[id]
-		} else {
-			return ac.OnCompleted(ac.Options[id])
-		}
-	} else {
-		return ac.Data.Complete(id)
-	}
-}
-
-// ----------------------------------------------
-
 type AutoComplete struct {
 	widget.Entry // AutoComplete extends widget.Entry
 
@@ -62,9 +24,6 @@ type AutoComplete struct {
 	Data AutoCompleteDataProvider
 
 	SubmitOnCompleted bool // if true, completing from list triggers OnSubmited
-
-	/*CustomCreate func() fyne.CanvasObject
-	CustomUpdate func(id widget.ListItemID, co fyne.CanvasObject)*/
 
 	popup    *widget.PopUp
 	list     *autoCompleteList
@@ -167,7 +126,43 @@ func (ac *AutoComplete) MouseIn(me *desktop.MouseEvent)    { ac.ToolTipable.Mous
 func (ac *AutoComplete) MouseMoved(me *desktop.MouseEvent) { ac.ToolTipable.MouseMoved(me) }
 func (ac *AutoComplete) MouseOut()                         { ac.ToolTipable.MouseOut() }
 
-// ---
+func (ac *AutoComplete) data_length() int {
+	if ac.Data == nil {
+		return len(ac.Options)
+	} else {
+		return ac.Data.Length()
+	}
+}
+
+func (ac *AutoComplete) data_create() fyne.CanvasObject {
+	if ac.Data == nil {
+		return &widget.Label{}
+	} else {
+		return ac.Data.Create()
+	}
+}
+
+func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
+	if ac.Data == nil {
+		co.(*widget.Label).Text = ac.Options[id]
+	} else {
+		ac.Data.Update(id, co)
+	}
+}
+
+func (ac *AutoComplete) data_complete(id int) string {
+	if ac.Data == nil {
+		if ac.OnCompleted == nil {
+			return ac.Options[id]
+		} else {
+			return ac.OnCompleted(ac.Options[id])
+		}
+	} else {
+		return ac.Data.Complete(id)
+	}
+}
+
+// ----------------------------------------------
 
 func (ac *AutoComplete) ListShow() {
 	if ac.pause || ac.readonly {
@@ -257,7 +252,7 @@ func (ac *AutoComplete) popupMaxSize() fyne.Size {
 	// define size boundaries
 	minWidth := ac.Size().Width
 	maxWidth := cnv.Size().Width - pos.X - theme.Padding()
-	maxHeight := cnv.Size().Height - pos.Y - ac.MinSize().Height - 2*theme.Padding()
+	maxHeight := cnv.Size().Height - pos.Y - ac.MinSize().Height - 2*theme.Padding() - theme.Padding()
 
 	// iterating items until the end or we reach maxHeight
 	var width, height float32
@@ -287,7 +282,7 @@ func (ac *AutoComplete) popupMaxSize() fyne.Size {
 	return fyne.NewSize(width, height)
 }
 
-// ------------------------------------------------------------------------------------------------
+// ----------------------------------------------
 
 type autoCompleteList struct {
 	widget.List
@@ -334,7 +329,7 @@ func (list *autoCompleteList) TypedRune(r rune) {
 func (list *autoCompleteList) TypedKey(k *fyne.KeyEvent) {
 	switch k.Name {
 	case fyne.KeyDown:
-		if list.parent.selected < len(list.parent.Options)-1 {
+		if list.parent.selected < list.parent.data_length()-1 {
 			list.parent.list.Select(list.parent.selected + 1)
 		} else {
 			list.parent.list.Select(0)
@@ -343,7 +338,7 @@ func (list *autoCompleteList) TypedKey(k *fyne.KeyEvent) {
 		if list.parent.selected > 0 {
 			list.parent.list.Select(list.parent.selected - 1)
 		} else {
-			list.parent.list.Select(len(list.parent.Options) - 1)
+			list.parent.list.Select(list.parent.data_length() - 1)
 		}
 	case fyne.KeyReturn, fyne.KeyEnter:
 		if list.parent.selected >= 0 {
