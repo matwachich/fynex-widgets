@@ -261,9 +261,9 @@ func (ac *AutoComplete) popupMaxSize() fyne.Size {
 
 	// iterating items until the end or we reach maxHeight
 	var width, height float32
-	for i := 0; i < len(ac.Options); i++ {
-		item := ac.list.CreateItem()
-		ac.list.UpdateItem(i, item)
+	for i := 0; i < ac.data_length(); i++ {
+		item := ac.data_create()
+		ac.data_update(i, item)
 		sz := item.MinSize()
 		if sz.Width > width {
 			width = sz.Width
