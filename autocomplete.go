@@ -7,28 +7,20 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type AutoCompleteDataProvider interface {
-	Length() int
-	Create() fyne.CanvasObject
-	Update(id int, co fyne.CanvasObject)
-	Complete(id int) string
-}
-
 type AutoComplete struct {
 	widget.Entry // AutoComplete extends widget.Entry
 
-	// autocomplete
-	Options     []string
-	OnCompleted func(string) string
+	//
+	Options []string
 
-	Data AutoCompleteDataProvider
+	//
+	CustomLength   func() int
+	CustomCreate   func() fyne.CanvasObject
+	CustomUpdate   func(id int, co fyne.CanvasObject)
+	CustomComplete func(id int) string
 
+	//
 	SubmitOnCompleted bool // if true, completing from list triggers OnSubmited
-
-	popup    *widget.PopUp
-	list     *autoCompleteList
-	selected widget.ListItemID
-	pause    bool
 
 	// custom callbacks
 	OnFocusGained   func()
@@ -40,6 +32,11 @@ type AutoComplete struct {
 	// tooltips
 	ToolTipable
 
+	// internals
+	popup    *widget.PopUp
+	list     *autoCompleteList
+	selected widget.ListItemID
+	pause    bool
 	readonly bool
 }
 
@@ -127,38 +124,34 @@ func (ac *AutoComplete) MouseMoved(me *desktop.MouseEvent) { ac.ToolTipable.Mous
 func (ac *AutoComplete) MouseOut()                         { ac.ToolTipable.MouseOut() }
 
 func (ac *AutoComplete) data_length() int {
-	if ac.Data == nil {
+	if ac.CustomLength == nil {
 		return len(ac.Options)
 	} else {
-		return ac.Data.Length()
+		return ac.CustomLength()
 	}
 }
 
 func (ac *AutoComplete) data_create() fyne.CanvasObject {
-	if ac.Data == nil {
+	if ac.CustomCreate == nil {
 		return &widget.Label{}
 	} else {
-		return ac.Data.Create()
+		return ac.CustomCreate()
 	}
 }
 
 func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
-	if ac.Data == nil {
+	if ac.CustomUpdate == nil {
 		co.(*widget.Label).Text = ac.Options[id]
 	} else {
-		ac.Data.Update(id, co)
+		ac.CustomUpdate(id, co)
 	}
 }
 
 func (ac *AutoComplete) data_complete(id int) string {
-	if ac.Data == nil {
-		if ac.OnCompleted == nil {
-			return ac.Options[id]
-		} else {
-			return ac.OnCompleted(ac.Options[id])
-		}
+	if ac.CustomComplete == nil {
+		return ac.Options[id]
 	} else {
-		return ac.Data.Complete(id)
+		return ac.CustomComplete(id)
 	}
 }
 
