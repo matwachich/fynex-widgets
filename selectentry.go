@@ -43,6 +43,9 @@ func (sel *SelectEntryEx) SetText(s string) {
 
 // FocusGained is a hook called by the focus handling logic after this object gained the focus.
 func (sel *SelectEntryEx) FocusGained() {
+	if sel.readOnly {
+		return
+	}
 	sel.SelectEntry.FocusGained()
 	if sel.OnFocusGained != nil {
 		sel.OnFocusGained()
