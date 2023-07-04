@@ -7,27 +7,34 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// AutoComplete is an extend widget.Entry that allows to display a list of suggestions
+// beneath it.
+//
+// The suggestions can be (by default) a simple list of strings (.Options), or anything
+// you want (complexe data structures).
+//
+// The CustomXxx callbacks are used for custom suggestion data.
 type AutoComplete struct {
 	widget.Entry // AutoComplete extends widget.Entry
 
 	//
-	Options []string
+	Options []string // List of suggestions.
 
 	//
-	CustomLength   func() int
-	CustomCreate   func() fyne.CanvasObject
-	CustomUpdate   func(id int, co fyne.CanvasObject)
-	CustomComplete func(id int) string
+	CustomLength   func() int                         // Returns the length of custom data source (widget.List like)
+	CustomCreate   func() fyne.CanvasObject           // Creates a fyne.CanvasObject to display a custom data source item (widget.List like)
+	CustomUpdate   func(id int, co fyne.CanvasObject) // Updates a fyne.CanvasObject to display a custom data source item (widget.List like)
+	CustomComplete func(id int) string                // Called when a custom data source is used, to match a (complexe) item with its textual representation (that will be filled in the Entry)
 
 	//
-	SubmitOnCompleted bool // if true, completing from list triggers OnSubmited
+	SubmitOnCompleted bool // if true, completing from list (either with Enter key or with click) triggers Entry.OnSubmited if set
 
 	// custom callbacks
-	OnFocusGained   func()
-	OnFocusLost     func()
-	OnTypedRune     func(r rune) (block bool)
-	OnTypedKey      func(k *fyne.KeyEvent) (block bool)
-	OnTypedShortcut func(s fyne.Shortcut) (block bool)
+	OnFocusGained   func()                              // Called when widget gains focus
+	OnFocusLost     func()                              // Called when widget loses focus
+	OnTypedRune     func(r rune) (block bool)           // Called when a rune is typed ; block = true will prevent the event from reaching the widget
+	OnTypedKey      func(k *fyne.KeyEvent) (block bool) // Called when a key is typed ; block = true will prevent the event from reaching the widget (this will also prevent TypedRune to be called)
+	OnTypedShortcut func(s fyne.Shortcut) (block bool)  // Called when a shortut is typed ; block = true will prevent the event from reaching the widget
 
 	// tooltips
 	ToolTipable
@@ -40,6 +47,8 @@ type AutoComplete struct {
 	readonly bool
 }
 
+// NewAutoComplete creates an AutoComplete widget.
+// minLines > 1 will create a multiline WordWrapped widget by default.
 func NewAutoComplete(minLines int) *AutoComplete {
 	ac := &AutoComplete{}
 	ac.ExtendBaseWidget(ac)
@@ -54,7 +63,16 @@ func NewAutoComplete(minLines int) *AutoComplete {
 	return ac
 }
 
+// ReadOnly returns read-only status.
+//
+// Read-Only widget will display like a normal non focused widget,
+// but it will be impossible to modify its content (either by keyboard or from clipboard).
 func (ac *AutoComplete) ReadOnly() bool { return ac.readonly }
+
+// SetReadOnly sets read-only status.
+//
+// Read-Only widget will display like a normal non focused widget,
+// but it will be impossible to modify its content (either by keyboard or from clipboard).
 func (ac *AutoComplete) SetReadOnly(b bool) {
 	ac.readonly = b
 	if cnv := fyne.CurrentApp().Driver().CanvasForObject(ac); b && cnv != nil && cnv.Focused() == ac {
@@ -157,6 +175,7 @@ func (ac *AutoComplete) data_complete(id int) string {
 
 // ----------------------------------------------
 
+// ListShow will display the auto-completion list (if there is data to display).
 func (ac *AutoComplete) ListShow() {
 	if ac.pause || ac.readonly {
 		return
@@ -186,6 +205,7 @@ func (ac *AutoComplete) ListShow() {
 	cnv.Focus(ac.list)
 }
 
+// ListHide hides auto-complete list.
 func (ac *AutoComplete) ListHide() {
 	if ac.popup != nil {
 		ac.list.UnselectAll()
@@ -193,10 +213,12 @@ func (ac *AutoComplete) ListHide() {
 	}
 }
 
+// ListVisible returns wether the auto-complete list is visible.
 func (ac *AutoComplete) ListVisible() bool {
 	return ac.popup != nil && ac.popup.Visible()
 }
 
+// SetText sets the text in the Entry without triggering OnChanged.
 func (ac *AutoComplete) SetText(s string) {
 	ac.pause = true
 	/*ac.Entry.CursorColumn = 0
