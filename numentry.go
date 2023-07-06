@@ -20,7 +20,7 @@ type NumEntry struct {
 	OnChanged func(string)
 
 	lastValidInt int
-	OnChangedIn  func(int)
+	OnChangedInt func(int)
 
 	lastValidFloat float64
 	OnChangedFloat func(float64)
@@ -44,10 +44,10 @@ func NewNumEntry() *NumEntry {
 		if n.OnChanged != nil {
 			n.OnChanged(s)
 		}
-		if n.OnChangedIn != nil {
+		if n.OnChangedInt != nil {
 			i := n.GetInt()
 			if i != n.lastValidInt {
-				n.OnChangedIn(i)
+				n.OnChangedInt(i)
 				n.lastValidInt = i
 			}
 		}
@@ -75,8 +75,15 @@ func (n *NumEntry) SetText(s string) {
 		return
 	}
 
-	for _, r := range s {
-		n.TypedRune(r)
+	old := n.Entry.OnChanged
+	n.Entry.OnChanged = nil
+
+	runes := []rune(s)
+	for i := 0; i < len(runes); i++ {
+		if i == len(runes)-1 {
+			n.Entry.OnChanged = old
+		}
+		n.TypedRune(runes[i])
 	}
 }
 
