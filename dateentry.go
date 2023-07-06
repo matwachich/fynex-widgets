@@ -16,7 +16,9 @@ import (
 type DateEntry struct {
 	widget.Entry
 
-	valid bool
+	//valid bool
+
+	lastValidTime time.Time
 
 	ToolTipable
 
@@ -37,16 +39,12 @@ func NewDateEntry() *DateEntry {
 	d.ExtendBaseWidget(d)
 	d.Text = "__/__/____"
 	d.Entry.OnChanged = func(s string) {
-		d.Validate()
-
-		tm := d.readTime()
-		valid := !tm.IsZero()
-
-		if valid != d.valid {
+		tm := d.GetTime()
+		if !tm.Equal(d.lastValidTime) {
 			if d.OnChanged != nil {
 				d.OnChanged(tm)
 			}
-			d.valid = valid
+			d.lastValidTime = tm
 		}
 	}
 	return d
@@ -56,17 +54,17 @@ func (d *DateEntry) callOnChanged() {
 	d.Entry.OnChanged(d.Text)
 }
 
-func (d *DateEntry) SetString(s string) {
+func (d *DateEntry) SetText(s string) {
 	d.Text = "__/__/____"
 	d.CursorColumn = 0
 	for _, r := range s {
 		d.TypedRune(r)
 	}
-	d.valid = !d.readTime().IsZero()
 	d.Refresh()
+	d.callOnChanged()
 }
 
-func (d *DateEntry) GetString() string {
+func (d *DateEntry) GetText() string {
 	tm, err := time.ParseInLocation("02/01/2006", d.Text, time.Local)
 	if err != nil || tm.IsZero() {
 		return ""
@@ -82,12 +80,13 @@ func (d *DateEntry) SetTime(tm time.Time) {
 		d.Text = tm.Format("02/01/2006")
 		d.CursorColumn = 10
 	}
-	d.valid = !d.readTime().IsZero()
 	d.Refresh()
+	d.callOnChanged()
 }
 
-func (d *DateEntry) GetTime() (time.Time, error) {
-	return time.ParseInLocation("02/01/2006", d.Text, time.Local)
+func (d *DateEntry) GetTime() time.Time {
+	tm, _ := time.ParseInLocation("02/01/2006", d.Text, time.Local)
+	return tm
 }
 
 func (d *DateEntry) ReadOnly() bool {
@@ -144,8 +143,8 @@ func (d *DateEntry) TypedRune(r rune) {
 				d.CursorColumn += 1
 			}
 			d.Text = string(t)
-			d.callOnChanged()
 			d.Refresh()
+			d.callOnChanged()
 		}
 	}
 }
@@ -226,6 +225,7 @@ func (d *DateEntry) TypedShortcut(shortcut fyne.Shortcut) {
 		for _, r := range s.Clipboard.Content() {
 			d.TypedRune(r)
 		}
+		d.callOnChanged()
 	} else {
 		d.Entry.TypedShortcut(shortcut)
 	}
@@ -236,11 +236,6 @@ func (d *DateEntry) MouseMoved(me *desktop.MouseEvent) { d.ToolTipable.MouseMove
 func (d *DateEntry) MouseOut()                         { d.ToolTipable.MouseOut() }
 
 // ------------------------------------------------------------------------------------------------
-
-func (d *DateEntry) readTime() time.Time {
-	tm, _ := time.ParseInLocation("02/01/2006", d.Text, time.Local)
-	return tm
-}
 
 func (d *DateEntry) setDay(day int, loop bool) {
 	maxDay := 30

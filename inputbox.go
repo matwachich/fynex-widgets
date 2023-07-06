@@ -161,14 +161,14 @@ func (ib *InputBox) AddPassword(name, label string) {
 
 func (ib *InputBox) AddDate(name, label string, value string) {
 	w := NewDateEntry()
-	w.SetString(value)
+	w.SetText(value)
 	w.OnChanged = func(_ time.Time) { ib.callOnChanged(name) }
 	ib.addEntryWidget(name, label, w)
 }
 
 func (ib *InputBox) AddNumber(name, label string, value string, float, signed bool) {
 	w := NewNumEntry()
-	w.SetString(value)
+	w.SetText(value)
 	w.OnChanged = func(_ string) { ib.callOnChanged(name) }
 	ib.addEntryWidget(name, label, w)
 }
@@ -240,9 +240,9 @@ func (ib *InputBox) ReadString(name string) (ret string) {
 	case *widget.Entry: // password
 		ret = w.Text
 	case *DateEntry:
-		ret = w.GetString()
+		ret = w.GetText()
 	case *NumEntry:
-		ret = w.GetString()
+		ret = w.Text
 	case *widget.Select:
 		ret = w.Selected
 	case *widget.SelectEntry:
@@ -272,9 +272,9 @@ func (ib *InputBox) WriteString(name string, value string) {
 	case *widget.Entry: // password
 		w.SetText(value)
 	case *DateEntry:
-		w.SetString(value)
+		w.SetText(value)
 	case *NumEntry:
-		w.SetString(value)
+		w.SetText(value)
 	case *widget.Select:
 		w.SetSelected(value)
 	case *widget.SelectEntry:

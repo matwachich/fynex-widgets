@@ -17,10 +17,17 @@ type NumEntry struct {
 	Float  bool
 	Signed bool
 
+	OnChanged func(string)
+
+	lastValidInt int
+	OnChangedIn  func(int)
+
+	lastValidFloat float64
+	OnChangedFloat func(float64)
+
 	ToolTipable
 
 	// custom callbacks
-	OnChanged       func(string)
 	OnFocusGained   func()
 	OnFocusLost     func()
 	OnTypedRune     func(r rune) (block bool)
@@ -37,6 +44,20 @@ func NewNumEntry() *NumEntry {
 		if n.OnChanged != nil {
 			n.OnChanged(s)
 		}
+		if n.OnChangedIn != nil {
+			i := n.GetInt()
+			if i != n.lastValidInt {
+				n.OnChangedIn(i)
+				n.lastValidInt = i
+			}
+		}
+		if n.OnChangedFloat != nil {
+			f := n.GetFloat()
+			if f != n.lastValidFloat {
+				n.OnChangedFloat(f)
+				n.lastValidFloat = f
+			}
+		}
 	}
 	return n
 }
@@ -47,14 +68,10 @@ func (n *NumEntry) SetReadOnly(b bool) {
 	n.Refresh()
 }
 
-func (n *NumEntry) GetString() string {
-	return n.Entry.Text
-}
-
-func (n *NumEntry) SetString(s string) {
+func (n *NumEntry) SetText(s string) {
 	n.Entry.Text = ""
 	if s == "" {
-		n.Entry.Refresh()
+		n.Entry.SetText("")
 		return
 	}
 
@@ -79,6 +96,7 @@ func (n *NumEntry) SetInt(i int) {
 	n.Entry.Text = strconv.Itoa(i)
 	n.Entry.CursorColumn = len(n.Entry.Text)
 	n.Entry.Refresh()
+	n.Entry.OnChanged(n.Entry.Text)
 }
 
 func (n *NumEntry) SetFloat(f float64) {
@@ -88,6 +106,7 @@ func (n *NumEntry) SetFloat(f float64) {
 	n.Entry.Text = strings.Replace(fmt.Sprint(f), ".", ",", 1)
 	n.Entry.CursorColumn = len(n.Entry.Text)
 	n.Entry.Refresh()
+	n.Entry.OnChanged(n.Entry.Text)
 }
 
 func (n *NumEntry) TypedRune(r rune) {
