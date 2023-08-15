@@ -34,6 +34,11 @@ func TestNumEntrySetText(t *testing.T) {
 	if n.GetFloat() != 123 {
 		t.Fatal("n.GetFloat() != 123")
 	}
+
+	n.SetText("45")
+	if n.Text != "45" {
+		t.Fatal("n.Text != 45")
+	}
 }
 
 func TestNumEntrySetInt(t *testing.T) {

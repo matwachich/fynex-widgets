@@ -69,9 +69,8 @@ func (n *NumEntry) SetReadOnly(b bool) {
 }
 
 func (n *NumEntry) SetText(s string) {
-	n.Entry.Text = ""
+	n.Entry.SetText("")
 	if s == "" {
-		n.Entry.SetText("")
 		return
 	}
 
@@ -80,20 +79,11 @@ func (n *NumEntry) SetText(s string) {
 
 	runes := []rune(s)
 	for i := 0; i < len(runes); i++ {
-		if i == len(runes)-1 {
-			n.Entry.OnChanged = old
-		}
 		n.TypedRune(runes[i])
 	}
-}
 
-func (n *NumEntry) GetInt() int {
-	return int(math.Abs(n.GetFloat()))
-}
-
-func (n *NumEntry) GetFloat() float64 {
-	f, _ := strconv.ParseFloat(strings.Replace(n.Entry.Text, ",", ".", 1), 64)
-	return f
+	n.Entry.OnChanged = old
+	n.Entry.OnChanged(n.Entry.Text)
 }
 
 func (n *NumEntry) SetInt(i int) {
@@ -114,6 +104,15 @@ func (n *NumEntry) SetFloat(f float64) {
 	n.Entry.CursorColumn = len(n.Entry.Text)
 	n.Entry.Refresh()
 	n.Entry.OnChanged(n.Entry.Text)
+}
+
+func (n *NumEntry) GetInt() int {
+	return int(math.Abs(n.GetFloat()))
+}
+
+func (n *NumEntry) GetFloat() float64 {
+	f, _ := strconv.ParseFloat(strings.Replace(n.Entry.Text, ",", ".", 1), 64)
+	return f
 }
 
 func (n *NumEntry) TypedRune(r rune) {
