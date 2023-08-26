@@ -12,6 +12,12 @@ type Label struct {
 	minWidth float32
 }
 
+func NewLabel(text string) *Label {
+	w := &Label{}
+	w.ExtendBaseWidget(w)
+	return w
+}
+
 func (w *Label) SetMinWidth(width float32) {
 	w.minWidth = width
 }
