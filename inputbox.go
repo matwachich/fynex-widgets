@@ -19,7 +19,6 @@ type InputBox struct {
 	Header           string // markdown supported
 	Validate, Cancel string
 
-	OnReady   func()              // called just after the widget is showed for the first time
 	OnChanged func(name string)   // called every time an entry is modified
 	OnAction  func(name string)   // called when an entry button is pressed
 	OnSubmit  func(validate bool) // called when validate or cancel button is pressed
@@ -30,9 +29,8 @@ type InputBox struct {
 
 	btnOk, btnCancel *widget.Button
 
-	inputs        map[string]fyne.Widget
-	inputsOrder   []string
-	onReadyCalled bool
+	inputs      map[string]fyne.Widget
+	inputsOrder []string
 }
 
 func NewInputBox() (ib *InputBox) {
@@ -86,28 +84,6 @@ func (ib *InputBox) CreateRenderer() fyne.WidgetRenderer {
 		nil, nil,
 		content,
 	))
-}
-
-func (ib *InputBox) Show() {
-	ib.BaseWidget.Show()
-
-	// focus the first focusable input
-	if cnv := fyne.CurrentApp().Driver().CanvasForObject(ib); cnv != nil && len(ib.inputsOrder) > 0 {
-		for _, name := range ib.inputsOrder {
-			if input, ok := ib.inputs[name]; ok && input.Visible() {
-				if w, ok := input.(fyne.Focusable); ok {
-					cnv.Focus(w)
-					break
-				}
-			}
-		}
-	}
-
-	// call on ready
-	if !ib.onReadyCalled && ib.OnReady != nil {
-		ib.OnReady()
-		ib.onReadyCalled = true
-	}
 }
 
 // ------------------------------------------------------------------------------------------------
