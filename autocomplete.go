@@ -286,7 +286,7 @@ func (ac *AutoComplete) popupMaxSize() fyne.Size {
 	}
 	height += theme.Padding() // popup padding
 
-	width += 2 * theme.Padding() // let some padding on the triling end of the longest item
+	width += 2 * theme.Padding() // let some padding on the trailing end of the longest item
 	if width < minWidth {
 		width = minWidth
 	}
