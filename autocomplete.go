@@ -278,7 +278,7 @@ func (ac *AutoComplete) popupMaxSize() fyne.Size {
 		if sz.Width > width {
 			width = sz.Width
 		}
-		height += sz.Height + theme.Padding()
+		height += sz.Height + theme.Padding() // FIXME when height is different from minHeight (wrapped content)
 		if height > maxHeight {
 			height = maxHeight
 			break
