@@ -1,3 +1,5 @@
+//go:build windows
+
 package wx
 
 import (
@@ -9,11 +11,14 @@ import (
 )
 
 var (
-	user32               = syscall.NewLazyDLL("user32.dll")
+	user32 = syscall.NewLazyDLL("user32.dll")
+
 	getWindowTextLengthW = user32.NewProc("GetWindowTextLengthW")
 	getWindowTextW       = user32.NewProc("GetWindowTextW")
 	getForegroundWindow  = user32.NewProc("GetForegroundWindow")
 	enumWindows          = user32.NewProc("EnumWindows")
+	sendMessage          = user32.NewProc("SendMessageW")
+	getDoubleClickTime   = user32.NewProc("GetDoubleClickTime")
 )
 
 var hwnds map[fyne.Window]uintptr
@@ -78,4 +83,13 @@ func GetHWND(w fyne.Window) (hwnd uintptr) {
 		hwnds[w] = hwnd
 	}
 	return
+}
+
+func MaximizeWindow(hwnd uintptr) {
+	sendMessage.Call(hwnd, 0x0112, 0xF030, 0) // WM_SYSCOMMAND SC_MAXIMIZE
+}
+
+func doubleClickTime() uint {
+	tm, _, _ := getDoubleClickTime.Call()
+	return uint(tm)
 }
