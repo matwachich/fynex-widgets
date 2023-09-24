@@ -16,13 +16,18 @@ type Button struct {
 	ToolTipable
 }
 
-func NewButton(text string, icon fyne.Resource, importance widget.ButtonImportance, action func(), menuItems ...*fyne.MenuItem) *Button {
+func NewButton(text string, icon fyne.Resource, importance widget.Importance, action func(), menuItems ...*fyne.MenuItem) *Button {
 	b := &Button{
 		Button: widget.Button{
 			Text: text, Icon: icon, Importance: importance, OnTapped: action,
 		},
 	}
 
+	for _, item := range menuItems {
+		if item == nil {
+			panic("wx.NewButton got passed a nil menu item")
+		}
+	}
 	if len(menuItems) > 0 {
 		b.Menu = fyne.NewMenu("", menuItems...)
 	}
@@ -40,6 +45,11 @@ func NewTBButton(text string, icon fyne.Resource, action func(), menuItems ...*f
 		},
 	}
 
+	for _, item := range menuItems {
+		if item == nil {
+			panic("wx.NewTBButton got passed a nil menu item")
+		}
+	}
 	if len(menuItems) > 0 {
 		b.Menu = fyne.NewMenu("", menuItems...)
 	}
@@ -84,6 +94,9 @@ func (b *Button) TappedSecondary(e *fyne.PointEvent) {
 		return
 	}
 	if b.OnMenuRequest != nil {
+		if b.Menu == nil {
+			b.Menu = &fyne.Menu{}
+		}
 		b.OnMenuRequest()
 	}
 	if b.Menu != nil && len(b.Menu.Items) > 0 {
