@@ -16,26 +16,34 @@ type Button struct {
 	ToolTipable
 }
 
-func NewButton(text string, icon fyne.Resource, importance widget.ButtonImportance, action func(), menu *fyne.Menu) *Button {
+func NewButton(text string, icon fyne.Resource, importance widget.ButtonImportance, action func(), menuItems ...*fyne.MenuItem) *Button {
 	b := &Button{
 		Button: widget.Button{
 			Text: text, Icon: icon, Importance: importance, OnTapped: action,
 		},
-		Menu: menu,
 	}
+
+	if len(menuItems) > 0 {
+		b.Menu = fyne.NewMenu("", menuItems...)
+	}
+
 	b.ToolTipable.parent = b
 	b.ExtendBaseWidget(b)
 	return b
 }
 
-func NewTBButton(text string, icon fyne.Resource, action func(), menu *fyne.Menu) *Button {
+func NewTBButton(text string, icon fyne.Resource, action func(), menuItems ...*fyne.MenuItem) *Button {
 	b := &Button{
 		Button: widget.Button{
 			Text: text, Icon: icon, OnTapped: action,
 			Importance: widget.LowImportance,
 		},
-		Menu: menu,
 	}
+
+	if len(menuItems) > 0 {
+		b.Menu = fyne.NewMenu("", menuItems...)
+	}
+
 	b.ToolTipable.parent = b
 	b.ExtendBaseWidget(b)
 	return b
