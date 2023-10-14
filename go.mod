@@ -3,7 +3,7 @@ module github.com/matwachich/fynex-widgets
 go 1.20
 
 require (
-	fyne.io/fyne/v2 v2.3.6-0.20230820114243-071526750089
+	fyne.io/fyne/v2 v2.4.1
 	golang.org/x/text v0.12.0
 )
 

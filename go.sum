@@ -39,6 +39,10 @@ cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 fyne.io/fyne/v2 v2.3.6-0.20230820114243-071526750089 h1:zBAhTYXARHxFc3iRmkavGNtfitBrHemY0ZhuXeZPV1I=
 fyne.io/fyne/v2 v2.3.6-0.20230820114243-071526750089/go.mod h1:AWM1iPM2YfliduZ4u/kQzP9E6ARIWm0gg+57GpYzWro=
+fyne.io/fyne/v2 v2.4.0 h1:LlyOyHmvkSo9IBm3aY+NVWSBIw+GMnssmyyIMK8F7zM=
+fyne.io/fyne/v2 v2.4.0/go.mod h1:AWM1iPM2YfliduZ4u/kQzP9E6ARIWm0gg+57GpYzWro=
+fyne.io/fyne/v2 v2.4.1 h1:Es100N6HIhJGg8H2ZAS2j5H/YibfxecXHs2V4A4hbq8=
+fyne.io/fyne/v2 v2.4.1/go.mod h1:AWM1iPM2YfliduZ4u/kQzP9E6ARIWm0gg+57GpYzWro=
 fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a h1:6Xf9fP3/mt72NrqlQhJWhQGcNf6GoG9X96NTaXr+K6A=
 fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a/go.mod h1:oM2AQqGJ1AMo4nNqZFYU8xYygSBZkW2hmdJ7n4yjedE=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
