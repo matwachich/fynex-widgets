@@ -400,14 +400,14 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 		} else {
 			form := w.currentForm()
 			form.Objects = append(form.Objects,
-				&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
+				&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}, Alignment: fyne.TextAlignTrailing},
 				cnt,
 			)
 		}
 	default:
 		form := w.currentForm()
 		form.Objects = append(form.Objects,
-			&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
+			&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}, Alignment: fyne.TextAlignTrailing},
 			cnt,
 		)
 	}
