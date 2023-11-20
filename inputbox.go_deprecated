@@ -12,7 +12,9 @@ import (
 )
 
 // InputBox is a complexe data input widget, intended to be used in popups (but not only...).
-type InputBox struct {
+//
+// Deprecated: use InputField instead (it's the same thing, without buttons and header)
+type InputBox_deprecated struct {
 	widget.BaseWidget
 
 	// configuration
@@ -33,13 +35,13 @@ type InputBox struct {
 	inputsOrder []string
 }
 
-func NewInputBox() (ib *InputBox) {
-	ib = &InputBox{Validate: "Valider", Cancel: "Annuler", inputs: make(map[string]fyne.Widget)}
+func NewInputBox_deprecated() (ib *InputBox_deprecated) {
+	ib = &InputBox_deprecated{Validate: "Valider", Cancel: "Annuler", inputs: make(map[string]fyne.Widget)}
 	ib.ExtendBaseWidget(ib)
 	return ib
 }
 
-func (ib *InputBox) CreateRenderer() fyne.WidgetRenderer {
+func (ib *InputBox_deprecated) CreateRenderer() fyne.WidgetRenderer {
 	// Header
 	var header fyne.CanvasObject
 	if ib.Header != "" {
@@ -88,7 +90,7 @@ func (ib *InputBox) CreateRenderer() fyne.WidgetRenderer {
 
 // ------------------------------------------------------------------------------------------------
 
-func (ib *InputBox) AddTab(label string) {
+func (ib *InputBox_deprecated) AddTab(label string) {
 	if label == "" || ib.vbox != nil {
 		return
 	}
@@ -98,11 +100,11 @@ func (ib *InputBox) AddTab(label string) {
 	ib.tabs.Append(container.NewTabItem(label, container.NewVBox()))
 }
 
-func (ib *InputBox) AddSeparator() {
+func (ib *InputBox_deprecated) AddSeparator() {
 	ib.currentVBox().Add(widget.NewSeparator())
 }
 
-func (ib *InputBox) AddTitle(text string) {
+func (ib *InputBox_deprecated) AddTitle(text string) {
 	if text != "" {
 		ib.currentVBox().Add(widget.NewRichTextFromMarkdown(text))
 	}
@@ -110,7 +112,7 @@ func (ib *InputBox) AddTitle(text string) {
 
 // ---
 
-func (ib *InputBox) AddLabel(name, label string, value string, bold, italic bool, alignement fyne.TextAlign) {
+func (ib *InputBox_deprecated) AddLabel(name, label string, value string, bold, italic bool, alignement fyne.TextAlign) {
 	ib.addEntryWidget(name, label, &widget.Label{
 		Text:      value,
 		Alignment: alignement,
@@ -121,35 +123,35 @@ func (ib *InputBox) AddLabel(name, label string, value string, bold, italic bool
 	})
 }
 
-func (ib *InputBox) AddText(name, label, value string, lines int) {
+func (ib *InputBox_deprecated) AddText(name, label, value string, lines int) {
 	w := NewEntryEx(lines)
 	w.Text = value
 	w.OnChanged = func(_ string) { ib.callOnChanged(name) }
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddPassword(name, label string) {
+func (ib *InputBox_deprecated) AddPassword(name, label string) {
 	w := widget.NewEntry()
 	w.Password = true
 	w.OnChanged = func(_ string) { ib.callOnChanged(name) }
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddDate(name, label string, value string) {
+func (ib *InputBox_deprecated) AddDate(name, label string, value string) {
 	w := NewDateEntry()
 	w.SetText(value)
 	w.OnChanged = func(_ time.Time) { ib.callOnChanged(name) }
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddNumber(name, label string, value string, float, signed bool) {
+func (ib *InputBox_deprecated) AddNumber(name, label string, value string, float, signed bool) {
 	w := NewNumEntry()
 	w.SetText(value)
 	w.OnChanged = func(_ string) { ib.callOnChanged(name) }
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddSelect(name, label string, options []string, value string, editable bool) {
+func (ib *InputBox_deprecated) AddSelect(name, label string, options []string, value string, editable bool) {
 	var w fyne.Widget
 	if !editable {
 		w = widget.NewSelect(options, func(_ string) { ib.callOnChanged(name) })
@@ -162,27 +164,27 @@ func (ib *InputBox) AddSelect(name, label string, options []string, value string
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddCheck(name, label, option string, value bool) {
+func (ib *InputBox_deprecated) AddCheck(name, label, option string, value bool) {
 	w := widget.NewCheck(option, func(_ bool) { ib.callOnChanged(name) })
 	w.Checked = value
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddCheckGroup(name, label string, options []string, values []string, horizontal bool) {
+func (ib *InputBox_deprecated) AddCheckGroup(name, label string, options []string, values []string, horizontal bool) {
 	w := widget.NewCheckGroup(options, func(_ []string) { ib.callOnChanged(name) })
 	w.SetSelected(values)
 	w.Horizontal = horizontal
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddRadioGroup(name, label string, options []string, value string, horizontal bool) {
+func (ib *InputBox_deprecated) AddRadioGroup(name, label string, options []string, value string, horizontal bool) {
 	w := widget.NewRadioGroup(options, func(_ string) { ib.callOnChanged(name) })
 	w.SetSelected(value)
 	w.Horizontal = horizontal
 	ib.addEntryWidget(name, label, w)
 }
 
-func (ib *InputBox) AddButton(name, label, text string, importance widget.ButtonImportance) {
+func (ib *InputBox_deprecated) AddButton(name, label, text string, importance widget.ButtonImportance) {
 	ib.addEntryWidget(name, label, &widget.Button{
 		Text:       text,
 		Importance: importance,
@@ -192,18 +194,18 @@ func (ib *InputBox) AddButton(name, label, text string, importance widget.Button
 
 // ------------------------------------------------------------------------------------------------
 
-func (ib *InputBox) Inputs() []string {
+func (ib *InputBox_deprecated) Inputs() []string {
 	return ib.inputsOrder
 }
 
-func (ib *InputBox) Widget(name string) fyne.Widget {
+func (ib *InputBox_deprecated) Widget(name string) fyne.Widget {
 	if w, ok := ib.inputs[name]; ok {
 		return w
 	}
 	return nil
 }
 
-func (ib *InputBox) ReadString(name string) (ret string) {
+func (ib *InputBox_deprecated) ReadString(name string) (ret string) {
 	w := ib.Widget(name)
 	if w == nil {
 		return
@@ -235,7 +237,7 @@ func (ib *InputBox) ReadString(name string) (ret string) {
 	return
 }
 
-func (ib *InputBox) WriteString(name string, value string) {
+func (ib *InputBox_deprecated) WriteString(name string, value string) {
 	w := ib.Widget(name)
 	if w == nil {
 		return
@@ -266,7 +268,7 @@ func (ib *InputBox) WriteString(name string, value string) {
 	}
 }
 
-func (ib *InputBox) SetOptions(name string, value string) {
+func (ib *InputBox_deprecated) SetOptions(name string, value string) {
 	switch w := ib.Widget(name).(type) {
 	case *widget.Select:
 		w.Options = strings.Split(value, "|")
@@ -285,7 +287,7 @@ func (ib *InputBox) SetOptions(name string, value string) {
 	}
 }
 
-func (ib *InputBox) Focus(name string) {
+func (ib *InputBox_deprecated) Focus(name string) {
 	if cnv := fyne.CurrentApp().Driver().CanvasForObject(ib); cnv != nil {
 		if input, ok := ib.inputs[name]; ok && input.Visible() {
 			if focusable, ok := input.(fyne.Focusable); ok {
@@ -295,7 +297,7 @@ func (ib *InputBox) Focus(name string) {
 	}
 }
 
-func (ib *InputBox) SetStatus(name string, enable bool) {
+func (ib *InputBox_deprecated) SetStatus(name string, enable bool) {
 	if input, ok := ib.inputs[name]; ok && input.Visible() {
 		if w, ok := input.(fyne.Disableable); ok {
 			if enable {
@@ -307,7 +309,7 @@ func (ib *InputBox) SetStatus(name string, enable bool) {
 	}
 }
 
-func (ib *InputBox) GetStatus(name string) bool {
+func (ib *InputBox_deprecated) GetStatus(name string) bool {
 	if input, ok := ib.inputs[name]; ok && input.Visible() {
 		if w, ok := input.(fyne.Disableable); ok {
 			return !w.Disabled()
@@ -316,7 +318,7 @@ func (ib *InputBox) GetStatus(name string) bool {
 	return false
 }
 
-func (ib *InputBox) SetSubmitable(b bool) {
+func (ib *InputBox_deprecated) SetSubmitable(b bool) {
 	if ib.btnOk != nil {
 		if b {
 			ib.btnOk.Enable()
@@ -326,7 +328,7 @@ func (ib *InputBox) SetSubmitable(b bool) {
 	}
 }
 
-func (ib *InputBox) GetSubmitable() bool {
+func (ib *InputBox_deprecated) GetSubmitable() bool {
 	if ib.btnOk != nil {
 		return !ib.btnOk.Disabled()
 	}
@@ -335,7 +337,7 @@ func (ib *InputBox) GetSubmitable() bool {
 
 // ------------------------------------------------------------------------------------------------
 
-func (ib *InputBox) currentVBox() *fyne.Container {
+func (ib *InputBox_deprecated) currentVBox() *fyne.Container {
 	if ib.tabs == nil {
 		if ib.vbox == nil {
 			ib.vbox = container.NewVBox()
@@ -346,7 +348,7 @@ func (ib *InputBox) currentVBox() *fyne.Container {
 	}
 }
 
-func (ib *InputBox) currentForm() *fyne.Container {
+func (ib *InputBox_deprecated) currentForm() *fyne.Container {
 	vbox := ib.currentVBox()
 	if len(vbox.Objects) <= 0 {
 		form := container.New(layout.NewFormLayout())
@@ -361,7 +363,7 @@ func (ib *InputBox) currentForm() *fyne.Container {
 	return form
 }
 
-func (ib *InputBox) addEntryWidget(name, label string, w fyne.Widget) {
+func (ib *InputBox_deprecated) addEntryWidget(name, label string, w fyne.Widget) {
 	if name == "" {
 		return
 	}
@@ -389,19 +391,19 @@ func (ib *InputBox) addEntryWidget(name, label string, w fyne.Widget) {
 
 // ---
 
-func (ib *InputBox) callOnChanged(name string) {
+func (ib *InputBox_deprecated) callOnChanged(name string) {
 	if ib.OnChanged != nil {
 		ib.OnChanged(name)
 	}
 }
 
-func (ib *InputBox) callOnAction(name string) {
+func (ib *InputBox_deprecated) callOnAction(name string) {
 	if ib.OnAction != nil {
 		ib.OnAction(name)
 	}
 }
 
-func (ib *InputBox) callOnSubmit(validate bool) {
+func (ib *InputBox_deprecated) callOnSubmit(validate bool) {
 	if ib.OnSubmit != nil {
 		ib.OnSubmit(validate)
 	}

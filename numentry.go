@@ -44,14 +44,14 @@ func NewNumEntry() *NumEntry {
 		if n.OnChanged != nil {
 			n.OnChanged(s)
 		}
-		if n.OnChangedInt != nil {
+		if !n.Float && n.OnChangedInt != nil {
 			i := n.GetInt()
 			if i != n.lastValidInt {
 				n.OnChangedInt(i)
 				n.lastValidInt = i
 			}
 		}
-		if n.OnChangedFloat != nil {
+		if n.Float && n.OnChangedFloat != nil {
 			f := n.GetFloat()
 			if f != n.lastValidFloat {
 				n.OnChangedFloat(f)
