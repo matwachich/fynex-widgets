@@ -196,12 +196,12 @@ func (w *InputFields) ReadString(id FieldID) (ret string) {
 		ret = wid.GetText()
 	case *NumEntry:
 		ret = wid.Text
-		if ret == "" {
+		/*if ret == "" {
 			ret = "0"
 			if wid.Float {
 				ret += ".0"
 			}
-		}
+		}*/
 	case *widget.Select:
 		ret = wid.Selected
 	case *widget.SelectEntry:
@@ -400,14 +400,14 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 		} else {
 			form := w.currentForm()
 			form.Objects = append(form.Objects,
-				&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}, Alignment: fyne.TextAlignTrailing},
+				&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
 				cnt,
 			)
 		}
 	default:
 		form := w.currentForm()
 		form.Objects = append(form.Objects,
-			&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}, Alignment: fyne.TextAlignTrailing},
+			&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
 			cnt,
 		)
 	}
