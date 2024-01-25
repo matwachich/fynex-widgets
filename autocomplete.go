@@ -235,6 +235,10 @@ func (ac *AutoComplete) Move(pos fyne.Position) {
 	}
 }
 
+func (ac *AutoComplete) RefreshItem(id int) {
+	ac.list.RefreshItem(id)
+}
+
 func (ac *AutoComplete) setTextFromList(id widget.ListItemID) {
 	ac.popup.Hide()
 
