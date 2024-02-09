@@ -239,6 +239,10 @@ func (ac *AutoComplete) RefreshItem(id int) {
 	ac.list.RefreshItem(id)
 }
 
+func (ac *AutoComplete) SetItemHeight(id int, height float32) {
+	ac.list.SetItemHeight(id, height)
+}
+
 func (ac *AutoComplete) setTextFromList(id widget.ListItemID) {
 	ac.popup.Hide()
 
@@ -321,8 +325,8 @@ func newAutoCompleteList(parent *AutoComplete) *autoCompleteList {
 	list.List.UpdateItem = func(id widget.ListItemID, co fyne.CanvasObject) {
 		co.(*autoCompleteListItem).id = id
 		parent.data_update(id, co.(*autoCompleteListItem).co)
-		parent.list.SetItemHeight(id, co.MinSize().Height)
-		co.Refresh()
+		/*parent.list.SetItemHeight(id, co.MinSize().Height)
+		co.Refresh()*/
 	}
 
 	list.List.OnSelected = func(id widget.ListItemID) {
