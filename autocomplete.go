@@ -124,11 +124,11 @@ func (ac *AutoComplete) TypedKey(k *fyne.KeyEvent) {
 
 func (ac *AutoComplete) TypedShortcut(s fyne.Shortcut) {
 	if ac.readonly {
-		switch s.(type) {
+		switch ss := s.(type) {
 		case *fyne.ShortcutPaste:
 			return
 		case *fyne.ShortcutCut:
-			s = &fyne.ShortcutCopy{Clipboard: s.(*fyne.ShortcutCut).Clipboard}
+			s = &fyne.ShortcutCopy{Clipboard: ss.Clipboard}
 		}
 	}
 	if ac.OnTypedShortcut != nil && ac.OnTypedShortcut(s) {
@@ -159,7 +159,7 @@ func (ac *AutoComplete) data_create() fyne.CanvasObject {
 
 func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
 	if ac.CustomUpdate == nil {
-		co.(*widget.Label).Text = ac.Options[id]
+		co.(*widget.Label).SetText(ac.Options[id])
 	} else {
 		ac.CustomUpdate(id, co)
 	}
