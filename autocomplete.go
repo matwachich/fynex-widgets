@@ -160,6 +160,7 @@ func (ac *AutoComplete) data_create() fyne.CanvasObject {
 func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
 	if ac.CustomUpdate == nil {
 		co.(*widget.Label).SetText(ac.Options[id])
+		ac.list.SetItemHeight(id, co.MinSize().Height)
 	} else {
 		ac.CustomUpdate(id, co)
 	}
