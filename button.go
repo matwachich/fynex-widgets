@@ -13,6 +13,8 @@ type Button struct {
 	Menu          *fyne.Menu
 	OnMenuRequest func() // if set, called just before showing popup menu
 
+	minWidth float32
+
 	ToolTipable
 }
 
@@ -61,6 +63,18 @@ func NewTBButton(text string, icon fyne.Resource, action func(), menuItems ...*f
 
 func (b *Button) ToolbarObject() fyne.CanvasObject {
 	return b
+}
+
+func (b *Button) MinSize() fyne.Size {
+	sz := b.Button.MinSize()
+	if sz.Width < b.minWidth {
+		sz.Width = b.minWidth
+	}
+	return sz
+}
+
+func (b *Button) SetMinWidth(w float32) {
+	b.minWidth = w
 }
 
 func (b *Button) Tap() {
