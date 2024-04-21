@@ -359,6 +359,45 @@ func (w *InputFields) SetFocus(id FieldID) {
 }
 
 // ----------------------------------------------------------------------------
+// Disableable
+
+func (w *InputFields) Enable() {
+	for _, f := range w.inputs {
+		if dis, ok := f.Widget.(fyne.Disableable); ok {
+			dis.Disable()
+			if f.check != nil {
+				f.check.Disable()
+			}
+		}
+	}
+}
+
+func (w *InputFields) Disable() {
+	for _, f := range w.inputs {
+		if dis, ok := f.Widget.(fyne.Disableable); ok {
+			if f.check == nil {
+				dis.Enable()
+			} else {
+				f.check.Enable()
+				f.check.SetChecked(f.check.Checked) // will update widget
+			}
+		}
+	}
+}
+
+func (w *InputFields) Disabled() (ret bool) {
+	for _, f := range w.inputs {
+		if dis, ok := f.Widget.(fyne.Disableable); ok && !dis.Disabled() {
+			ret = true
+			break
+		}
+	}
+	return
+}
+
+// TODO wx.Readonlyable ? (pour afficher un document avec DocType.Inputs en readonly (autre user))
+
+// ----------------------------------------------------------------------------
 // internals
 
 func (w *InputFields) dummyId(id *FieldID) {
