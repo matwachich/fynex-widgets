@@ -364,9 +364,9 @@ func (w *InputFields) SetFocus(id FieldID) {
 func (w *InputFields) Enable() {
 	for _, f := range w.inputs {
 		if dis, ok := f.Widget.(fyne.Disableable); ok {
-			dis.Disable()
+			dis.Enable()
 			if f.check != nil {
-				f.check.Disable()
+				f.check.Enable()
 			}
 		}
 	}
@@ -376,9 +376,9 @@ func (w *InputFields) Disable() {
 	for _, f := range w.inputs {
 		if dis, ok := f.Widget.(fyne.Disableable); ok {
 			if f.check == nil {
-				dis.Enable()
+				dis.Disable()
 			} else {
-				f.check.Enable()
+				f.check.Disable()
 				f.check.SetChecked(f.check.Checked) // will update widget
 			}
 		}
@@ -387,7 +387,7 @@ func (w *InputFields) Disable() {
 
 func (w *InputFields) Disabled() (ret bool) {
 	for _, f := range w.inputs {
-		if dis, ok := f.Widget.(fyne.Disableable); ok && !dis.Disabled() {
+		if dis, ok := f.Widget.(fyne.Disableable); ok && dis.Disabled() {
 			ret = true
 			break
 		}
