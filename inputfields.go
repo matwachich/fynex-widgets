@@ -244,7 +244,7 @@ func (w *InputFields) WriteString(id FieldID, value string) {
 	case *widget.SelectEntry:
 		wid.SetText(value)
 	case *widget.Check:
-		if b, err := strconv.ParseBool(value); err != nil {
+		if b, err := strconv.ParseBool(value); err == nil {
 			wid.SetChecked(b)
 		}
 	case *widget.CheckGroup:
