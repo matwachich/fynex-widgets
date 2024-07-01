@@ -21,10 +21,10 @@ type AutoComplete struct {
 	Options []string // List of suggestions.
 
 	//
-	CustomLength   func() int                         // Returns the length of custom data source (widget.List like)
-	CustomCreate   func() fyne.CanvasObject           // Creates a fyne.CanvasObject to display a custom data source item (widget.List like)
-	CustomUpdate   func(id int, co fyne.CanvasObject) // Updates a fyne.CanvasObject to display a custom data source item (widget.List like)
-	CustomComplete func(id int) string                // Called when a custom data source is used, to match a (complexe) item with its textual representation (that will be filled in the Entry)
+	CustomLength   func() int                            // Returns the length of custom data source (widget.List like)
+	CustomCreate   func() fyne.CanvasObject              // Creates a fyne.CanvasObject to display a custom data source item (widget.List like)
+	CustomUpdate   func(id int, co fyne.CanvasObject)    // Updates a fyne.CanvasObject to display a custom data source item (widget.List like)
+	CustomComplete func(id int) (ret string, close bool) // Called when a custom data source is used, to match a (complexe) item with its textual representation (that will be filled in the Entry)
 
 	//
 	SubmitOnCompleted bool // if true, completing from list (either with Enter key or with click) triggers Entry.OnSubmited if set
@@ -166,9 +166,9 @@ func (ac *AutoComplete) data_update(id int, co fyne.CanvasObject) {
 	}
 }
 
-func (ac *AutoComplete) data_complete(id int) string {
+func (ac *AutoComplete) data_complete(id int) (ret string, close bool) {
 	if ac.CustomComplete == nil {
-		return ac.Options[id]
+		return ac.Options[id], true
 	} else {
 		return ac.CustomComplete(id)
 	}
@@ -245,11 +245,10 @@ func (ac *AutoComplete) SetItemHeight(id int, height float32) {
 }
 
 func (ac *AutoComplete) setTextFromList(id widget.ListItemID) {
-	ac.popup.Hide()
-
 	ac.pause = true
 
-	ac.Entry.Text = ac.data_complete(id)
+	var close bool
+	ac.Entry.Text, close = ac.data_complete(id)
 	ac.Entry.CursorColumn = len(ac.Entry.Text)
 	ac.Entry.Refresh()
 
@@ -257,6 +256,10 @@ func (ac *AutoComplete) setTextFromList(id widget.ListItemID) {
 
 	if ac.SubmitOnCompleted && ac.OnSubmitted != nil {
 		ac.OnSubmitted(ac.Entry.Text)
+	}
+
+	if close {
+		ac.popup.Hide()
 	}
 }
 
