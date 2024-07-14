@@ -21,6 +21,10 @@ type inputField struct {
 type InputFields struct {
 	widget.BaseWidget
 
+	// on est obligé de passer la fenêtre pour la fonction Focus
+
+	win fyne.Window
+
 	OnChanged func(id FieldID)
 	OnAction  func(id FieldID)
 
@@ -34,8 +38,8 @@ type InputFields struct {
 // ----------------------------------------------------------------------------
 // Creation
 
-func NewInputFields() (w *InputFields) {
-	w = &InputFields{inputs: make(map[FieldID]*inputField)}
+func NewInputFields(win fyne.Window) (w *InputFields) {
+	w = &InputFields{win: win, inputs: make(map[FieldID]*inputField)}
 	w.ExtendBaseWidget(w)
 	return w
 }
@@ -353,7 +357,15 @@ func (w *InputFields) GetStatus(id FieldID) (b bool) {
 func (w *InputFields) SetFocus(id FieldID) {
 	if f, ok := w.inputs[id]; ok {
 		if foc, ok := f.Widget.(fyne.Focusable); ok {
-			fyne.CurrentApp().Driver().CanvasForObject(f.Widget).Focus(foc)
+			w.win.Canvas().Focus(foc)
+
+			/*if app := fyne.CurrentApp(); app != nil {
+				if drv := app.Driver(); drv != nil {
+					if cnv := drv.CanvasForObject(w); cnv != nil {
+						cnv.Focus(foc)
+					}
+				}
+			}*/ // FIXME CanvasForObject doesn't work with custom widgets ; when a better solution is found, remove w.win
 		}
 	}
 }
