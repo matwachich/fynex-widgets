@@ -8,6 +8,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -35,6 +36,7 @@ type NumEntry struct {
 	OnTypedShortcut func(s fyne.Shortcut) (block bool)
 
 	readOnly bool
+	minCols  int
 }
 
 func NewNumEntry() *NumEntry {
@@ -66,6 +68,19 @@ func (n *NumEntry) ReadOnly() bool { return n.readOnly }
 func (n *NumEntry) SetReadOnly(b bool) {
 	n.readOnly = b
 	n.Refresh()
+}
+
+func (e *NumEntry) SetMinColsVisible(c int) {
+	e.minCols = c
+	e.Refresh()
+}
+
+func (e *NumEntry) MinSize() fyne.Size {
+	sz := e.Entry.MinSize()
+	if e.minCols > 0 {
+		sz.Width = fyne.MeasureText(strings.Repeat("0", e.minCols), theme.TextSize(), e.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
+	}
+	return sz
 }
 
 func (n *NumEntry) SetText(s string) {

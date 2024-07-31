@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -37,6 +38,7 @@ type EntryEx struct {
 	OnTypedShortcut func(s fyne.Shortcut) (block bool)
 
 	readOnly bool
+	minCols  int
 }
 
 func NewEntryEx(minRows int) *EntryEx {
@@ -81,6 +83,19 @@ func (e *EntryEx) SetReadOnly(b bool) {
 		cnv.Focus(nil)
 	}
 	e.Entry.Refresh()
+}
+
+func (e *EntryEx) SetMinColsVisible(c int) {
+	e.minCols = c
+	e.Refresh()
+}
+
+func (e *EntryEx) MinSize() fyne.Size {
+	sz := e.Entry.MinSize()
+	if e.minCols > 0 {
+		sz.Width = fyne.MeasureText(strings.Repeat("M", e.minCols), theme.TextSize(), e.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
+	}
+	return sz
 }
 
 func (e *EntryEx) SetText(s string) {

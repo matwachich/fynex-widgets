@@ -1,14 +1,15 @@
 package wx
 
 import (
+	"strings"
+
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 type SelectEntryEx struct {
 	widget.SelectEntry
-
-	readOnly bool
 
 	// custom callbacks
 	OnFocusGained   func()
@@ -16,6 +17,9 @@ type SelectEntryEx struct {
 	OnTypedRune     func(rune) (block bool)
 	OnTypedKey      func(*fyne.KeyEvent) (block bool)
 	OnTypedShortcut func(fyne.Shortcut) (block bool)
+
+	readOnly bool
+	minCols  int
 }
 
 func NewSelectEntryEx() *SelectEntryEx {
@@ -33,6 +37,19 @@ func (sel *SelectEntryEx) SetReadOnly(b bool) {
 	} else {
 		sel.SelectEntry.Entry.ActionItem.(fyne.Disableable).Enable()
 	}
+}
+
+func (e *SelectEntryEx) SetMinColsVisible(c int) {
+	e.minCols = c
+	e.Refresh()
+}
+
+func (e *SelectEntryEx) MinSize() fyne.Size {
+	sz := e.SelectEntry.MinSize()
+	if e.minCols > 0 {
+		sz.Width = fyne.MeasureText(strings.Repeat("M", e.minCols), theme.TextSize(), e.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
+	}
+	return sz
 }
 
 func (sel *SelectEntryEx) SetText(s string) {
