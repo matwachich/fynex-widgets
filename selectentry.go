@@ -47,7 +47,10 @@ func (e *SelectEntryEx) SetMinColsVisible(c int) {
 func (e *SelectEntryEx) MinSize() fyne.Size {
 	sz := e.SelectEntry.MinSize()
 	if e.minCols > 0 {
-		sz.Width = fyne.MeasureText(strings.Repeat("M", e.minCols), theme.TextSize(), e.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
+		calc := fyne.MeasureText(strings.Repeat("M", e.minCols), theme.TextSize(), e.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
+		if calc > sz.Width {
+			sz.Width = calc
+		}
 	}
 	return sz
 }
