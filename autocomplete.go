@@ -18,6 +18,9 @@ type AutoComplete struct {
 	widget.Entry // AutoComplete extends widget.Entry
 
 	//
+	AcceptTab bool
+
+	//
 	Options []string // List of suggestions.
 
 	//
@@ -63,6 +66,10 @@ func NewAutoComplete(minLines int) *AutoComplete {
 	return ac
 }
 
+func (ac *AutoComplete) AcceptsTab() bool {
+	return ac.AcceptTab
+}
+
 // ReadOnly returns read-only status.
 //
 // Read-Only widget will display like a normal non focused widget,
@@ -81,8 +88,6 @@ func (ac *AutoComplete) SetReadOnly(b bool) {
 	ac.ListHide()
 	ac.Refresh()
 }
-
-func (ac *AutoComplete) AcceptsTab() bool { return false }
 
 func (ac *AutoComplete) FocusGained() {
 	if ac.readonly {

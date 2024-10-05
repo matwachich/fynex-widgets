@@ -10,6 +10,8 @@ import (
 type Button struct {
 	widget.Button
 
+	Unfocusable bool
+
 	Menu          *fyne.Menu
 	OnMenuRequest func() // if set, called just before showing popup menu
 
@@ -116,6 +118,32 @@ func (b *Button) TappedSecondary(e *fyne.PointEvent) {
 	if b.Menu != nil && len(b.Menu.Items) > 0 {
 		widget.ShowPopUpMenuAtPosition(b.Menu, fyne.CurrentApp().Driver().CanvasForObject(b), e.AbsolutePosition)
 	}
+}
+
+func (b *Button) FocusGained() {
+	if !b.Unfocusable {
+		b.Button.FocusGained()
+	} else {
+		drv := fyne.CurrentApp().Driver()
+		if dd, ok := drv.(desktop.Driver); ok {
+			if dd.CurrentKeyModifiers()&fyne.KeyModifierShift != 0 {
+				go drv.CanvasForObject(b).FocusPrevious()
+			} else {
+				go drv.CanvasForObject(b).FocusNext()
+			}
+		}
+	}
+}
+func (b *Button) FocusLost() {
+	if !b.Unfocusable {
+		b.Button.FocusLost()
+	}
+}
+func (b *Button) TypedRune(r rune) {
+	b.Button.TypedRune(r)
+}
+func (b *Button) TypedKey(e *fyne.KeyEvent) {
+	b.Button.TypedKey(e)
 }
 
 func (b *Button) MouseIn(e *desktop.MouseEvent) {
