@@ -38,7 +38,7 @@ type EntryEx struct {
 	OnTypedShortcut func(s fyne.Shortcut) (block bool)
 
 	//
-	Menu *fyne.Menu
+	Menu, DisabledMenu *fyne.Menu
 
 	readOnly bool
 	minCols  int
@@ -173,12 +173,15 @@ func (e *EntryEx) TypedShortcut(s fyne.Shortcut) {
 }
 
 func (e *EntryEx) TappedSecondary(p *fyne.PointEvent) {
-	if e.Menu == nil {
+	menu := e.Menu
+	if e.Disabled() {
+		menu = e.DisabledMenu
+	}
+	if menu == nil {
 		e.Entry.TappedSecondary(p)
 		return
 	}
-
-	widget.ShowPopUpMenuAtPosition(e.Menu, fyne.CurrentApp().Driver().CanvasForObject(e), p.AbsolutePosition)
+	widget.ShowPopUpMenuAtPosition(menu, fyne.CurrentApp().Driver().CanvasForObject(e), p.AbsolutePosition)
 }
 
 func (e *EntryEx) MouseIn(me *desktop.MouseEvent)    { e.ToolTipable.MouseIn(me) }
