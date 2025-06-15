@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -31,12 +32,17 @@ type DateEntry struct {
 	OnTypedShortcut func(s fyne.Shortcut) (block bool)
 
 	readOnly bool
+
+	popup *widget.PopUp
+	cal   *Calendar
+	today *widget.Button
 }
 
 func NewDateEntry() *DateEntry {
 	d := &DateEntry{}
 	d.ToolTipable.parent = d
 	d.ExtendBaseWidget(d)
+
 	d.Text = "__/__/____"
 	d.Entry.OnChanged = func(s string) {
 		tm := d.GetTime()
@@ -45,9 +51,54 @@ func NewDateEntry() *DateEntry {
 				d.OnChanged(tm)
 			}
 			d.lastValidTime = tm
+
+			d.calendarSetWithoutCallback(tm)
 		}
 	}
+	/*d.Entry.Validator = func(s string) (err error) { // la fonction n'est pas appelée! j'sais pas pourquoi
+		if s == "__/__/____" {
+			return
+		}
+		_, err = time.Parse("02/01/2006", s)
+		return
+	}*/
+
+	d.Entry.ActionItem = &widget.Button{Icon: theme.CalendarIcon(), Importance: widget.LowImportance, OnTapped: func() {
+		if d.popup == nil {
+			c := fyne.CurrentApp().Driver().CanvasForObject(d)
+			d.popup = widget.NewPopUp(container.NewVBox(d.cal, d.today), c)
+		}
+
+		pos := d.Position()
+		pos.Y += d.MinSize().Height
+		d.popup.ShowAtRelativePosition(pos, d)
+
+		// set date after show, because cal internal widgets are create in CreateRenderer
+		d.calendarSetWithoutCallback(d.GetTime())
+	}}
+	d.cal = NewCalendar(time.Now(), time.Time{}, func(t time.Time) {
+		d.SetTime(t)
+		d.popup.Hide()
+	})
+	d.cal.Selectable = true
+
+	d.today = &widget.Button{Text: "Aujourd'hui", Alignment: widget.ButtonAlignCenter, Importance: widget.LowImportance, OnTapped: func() {
+		d.SetTime(time.Now())
+		d.popup.Hide()
+	}}
 	return d
+}
+
+func (d *DateEntry) calendarSetWithoutCallback(date time.Time) {
+	oldCB := d.cal.OnChanged
+	d.cal.OnChanged = nil
+	d.cal.SetSelectedDate(date)
+	d.cal.SetDisplayedDate(date)
+	d.cal.OnChanged = oldCB
+}
+
+func (d *DateEntry) SetWeekStart(wd time.Weekday) {
+	d.cal.SetWeekStart(wd)
 }
 
 func (d *DateEntry) callOnChanged() {
@@ -97,12 +148,20 @@ func (d *DateEntry) SetReadOnly(b bool) {
 	if cnv := fyne.CurrentApp().Driver().CanvasForObject(d); b && cnv != nil && cnv.Focused() == d {
 		cnv.Focus(nil)
 	}
+	if b && d.popup != nil {
+		d.popup.Hide()
+	}
+	if b {
+		d.Entry.ActionItem.(fyne.Disableable).Disable()
+	} else {
+		d.Entry.ActionItem.(fyne.Disableable).Enable()
+	}
 	d.Refresh()
 }
 
 func (d *DateEntry) MinSize() fyne.Size {
 	s := d.Entry.MinSize()
-	s.Width = fyne.MeasureText("00/00/0000", theme.TextSize(), d.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
+	s.Width = fyne.MeasureText("00/00/0000", theme.TextSize(), d.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize() + s.Height // trick! pour ajouter la largeur du bouton d'action
 	return s
 }
 

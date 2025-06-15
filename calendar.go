@@ -63,6 +63,10 @@ func NewCalendar(cT, sT time.Time, changed func(time.Time)) *Calendar {
 
 // SetDisplayedDate sets the currently displayed year and month
 func (c *Calendar) SetDisplayedDate(date time.Time) {
+	if date.IsZero() {
+		date = time.Now()
+	}
+
 	// Dates are 'normalised', forcing date to start from the start of the month ensures move from March to February
 	c.displayedDate = time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.Local)
 	c.monthLabel.SetText(c.monthYear())
