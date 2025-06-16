@@ -80,7 +80,7 @@ func NewDateEntry() *DateEntry {
 		d.SetTime(t)
 		d.popup.Hide()
 	})
-	d.cal.Selectable = true
+	//d.cal.Selectable = true
 
 	d.today = &widget.Button{Text: "Aujourd'hui", Alignment: widget.ButtonAlignCenter, Importance: widget.LowImportance, OnTapped: func() {
 		d.SetTime(time.Now())
