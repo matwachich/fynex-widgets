@@ -25,6 +25,12 @@ const (
 
 var minCellContent = widget.NewLabel("22")
 
+var weekStart time.Weekday
+
+func SetGlobalWeekStart(ws time.Weekday) {
+	weekStart = ws
+}
+
 // Calendar creates a new date time picker which returns a time object
 //
 // Since: 2.6
@@ -53,8 +59,8 @@ func NewCalendar(cT, sT time.Time, changed func(time.Time)) *Calendar {
 	c := &Calendar{
 		displayedDate: cT,
 		SelectedDate:  sT,
-		//Selectable:    !sT.IsZero(),
-		OnChanged: changed,
+		WeekStart:     weekStart,
+		OnChanged:     changed,
 	}
 
 	c.ExtendBaseWidget(c)
@@ -93,6 +99,8 @@ func (c *Calendar) SetWeekStart(wd time.Weekday) {
 // CreateRenderer returns a new WidgetRenderer for this widget.
 // This should not be called by regular code, it is used internally to render a widget.
 func (c *Calendar) CreateRenderer() fyne.WidgetRenderer {
+	c.WeekStart = weekStart
+
 	c.monthPrevious = widget.NewButtonWithIcon("", theme.NavigateBackIcon(), func() {
 		c.SetDisplayedDate(c.displayedDate.AddDate(0, -1, 0))
 	})

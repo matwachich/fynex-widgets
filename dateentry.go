@@ -12,8 +12,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-// TODO intégrer le fyne-x Calendar ; bofbof... il est bugué
-
 type DateEntry struct {
 	widget.Entry
 
