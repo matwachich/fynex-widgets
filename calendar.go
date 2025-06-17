@@ -134,49 +134,6 @@ func (c *Calendar) dateForButton(dayNum int) time.Time {
 	return time.Date(c.displayedDate.Year(), c.displayedDate.Month(), dayNum, c.displayedDate.Hour(), c.displayedDate.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.displayedDate.Location())
 }
 
-/*func (c *Calendar) tappedDate(date time.Time) {
-	if !c.Selectable {
-		return
-	}
-
-	if date.IsZero() || date.Format("20060102") == c.SelectedDate.Format("20060102") {
-		// tapping the selected date will unselect it
-		c.SelectedDate = time.Time{}
-
-		if c.dates != nil {
-			for i := 0; i < len(c.dates.Objects); i++ {
-				if b, ok := c.dates.Objects[i].(*widget.Button); ok {
-					b.Importance = widget.LowImportance
-				}
-			}
-		}
-	} else {
-		c.SelectedDate = date
-
-		if c.dates != nil {
-			selY, selM, selD := date.Year(), date.Month(), date.Day()
-			curY, curM := c.displayedDate.Year(), c.displayedDate.Month()
-
-			for i := 0; i < len(c.dates.Objects); i++ {
-				if b, ok := c.dates.Objects[i].(*widget.Button); ok {
-					dayNum, _ := strconv.Atoi(b.Text)
-					if selY == curY && selM == curM && selD == dayNum {
-						b.Importance = widget.HighImportance
-					} else {
-						b.Importance = widget.LowImportance
-					}
-				}
-			}
-		}
-	}
-
-	c.Refresh()
-
-	if c.OnChanged != nil {
-		c.OnChanged(c.SelectedDate)
-	}
-}*/
-
 func (c *Calendar) updateSelection() {
 	if c.dates == nil || len(c.dates.Objects) <= 0 {
 		return
@@ -234,16 +191,14 @@ func (c *Calendar) daysOfMonth() []fyne.CanvasObject {
 		})
 		b.Importance = widget.LowImportance
 
-		/*if /*c.Selectable && !c.SelectedDate.IsZero() && c.SelectedDate.Year() == c.displayedDate.Year() && c.SelectedDate.Month() == c.displayedDate.Month() && c.SelectedDate.Day() == dayNum {
+		if /*c.Selectable &&*/ !c.SelectedDate.IsZero() && c.SelectedDate.Year() == c.displayedDate.Year() && c.SelectedDate.Month() == c.displayedDate.Month() && c.SelectedDate.Day() == dayNum {
 			b.Importance = widget.HighImportance
 		} else {
 			b.Importance = widget.LowImportance
-		}*/
+		}
 
 		buttons = append(buttons, b)
 	}
-
-	c.updateSelection()
 
 	return buttons
 }

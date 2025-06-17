@@ -77,12 +77,16 @@ func NewDateEntry() *DateEntry {
 		d.calendarSetWithoutCallback(d.GetTime())
 	}}
 	d.cal = NewCalendar(time.Now(), time.Time{}, func(t time.Time) {
+		// tapping the same time in calendar will unset selected time
+		if t.Format("20060102") == d.GetTime().Format("20060102") {
+			t = time.Time{}
+		}
 		d.SetTime(t)
 		d.popup.Hide()
 	})
 	//d.cal.Selectable = true
 
-	d.today = &widget.Button{Text: "Aujourd'hui", Alignment: widget.ButtonAlignCenter, Importance: widget.LowImportance, OnTapped: func() {
+	d.today = &widget.Button{Text: "Aujourd'hui", Alignment: widget.ButtonAlignCenter, Importance: widget.MediumImportance, OnTapped: func() {
 		d.SetTime(time.Now())
 		d.popup.Hide()
 	}}
