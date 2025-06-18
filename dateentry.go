@@ -66,10 +66,7 @@ func NewDateEntry() *DateEntry {
 			c := fyne.CurrentApp().Driver().CanvasForObject(d)
 			d.popup = widget.NewPopUp(container.NewVBox(d.cal, d.today), c)
 		}
-
-		pos := d.Position()
-		pos.Y += d.MinSize().Height
-		d.popup.ShowAtRelativePosition(pos, d)
+		d.popup.ShowAtPosition(d.popupPosition())
 
 		// set date after show, because cal internal widgets are create in CreateRenderer
 		d.calendarSetWithoutCallback(d.GetTime())
@@ -91,20 +88,8 @@ func NewDateEntry() *DateEntry {
 	return d
 }
 
-func (d *DateEntry) calendarSetWithoutCallback(date time.Time) {
-	oldCB := d.cal.OnChanged
-	d.cal.OnChanged = nil
-	d.cal.SetSelectedDate(date)
-	d.cal.SetDisplayedDate(date)
-	d.cal.OnChanged = oldCB
-}
-
 func (d *DateEntry) SetWeekStart(wd time.Weekday) {
 	d.cal.SetWeekStart(wd)
-}
-
-func (d *DateEntry) callOnChanged() {
-	d.Entry.OnChanged(d.Text)
 }
 
 func (d *DateEntry) SetText(s string) {
@@ -142,6 +127,18 @@ func (d *DateEntry) GetTime() time.Time {
 	return tm
 }
 
+func (d *DateEntry) Enable() {
+	d.Entry.Enable()
+	d.Entry.ActionItem.(fyne.Disableable).Enable()
+}
+func (d *DateEntry) Disable() {
+	d.Entry.Disable()
+	d.Entry.ActionItem.(fyne.Disableable).Disable()
+}
+func (d *DateEntry) Disabled() bool {
+	return d.Entry.Disabled()
+}
+
 func (d *DateEntry) ReadOnly() bool {
 	return d.readOnly
 }
@@ -165,6 +162,13 @@ func (d *DateEntry) MinSize() fyne.Size {
 	s := d.Entry.MinSize()
 	s.Width = fyne.MeasureText("00/00/0000", theme.TextSize(), d.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize() + s.Height // trick! pour ajouter la largeur du bouton d'action
 	return s
+}
+
+func (d *DateEntry) Move(p fyne.Position) {
+	d.Entry.Move(p)
+	if d.popup != nil && d.popup.Visible() {
+		d.popup.Move(d.popupPosition())
+	}
 }
 
 func (d *DateEntry) FocusGained() {
@@ -296,7 +300,25 @@ func (d *DateEntry) MouseIn(me *desktop.MouseEvent)    { d.ToolTipable.MouseIn(m
 func (d *DateEntry) MouseMoved(me *desktop.MouseEvent) { d.ToolTipable.MouseMoved(me) }
 func (d *DateEntry) MouseOut()                         { d.ToolTipable.MouseOut() }
 
-// ------------------------------------------------------------------------------------------------
+//
+
+func (d *DateEntry) callOnChanged() {
+	d.Entry.OnChanged(d.Text)
+}
+
+func (d *DateEntry) popupPosition() fyne.Position {
+	pos := fyne.CurrentApp().Driver().AbsolutePositionForObject(d)
+	pos.Y += d.Size().Height + theme.Padding()
+	return pos
+}
+
+func (d *DateEntry) calendarSetWithoutCallback(date time.Time) {
+	oldCB := d.cal.OnChanged
+	d.cal.OnChanged = nil
+	d.cal.SetSelectedDate(date)
+	d.cal.SetDisplayedDate(date)
+	d.cal.OnChanged = oldCB
+}
 
 func (d *DateEntry) setDay(day int, loop bool) {
 	maxDay := 30
