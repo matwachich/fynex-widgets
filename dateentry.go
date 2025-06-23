@@ -34,6 +34,7 @@ type DateEntry struct {
 	popup *widget.PopUp
 	cal   *Calendar
 	today *widget.Button
+	other *widget.Button
 }
 
 func NewDateEntry() *DateEntry {
@@ -64,8 +65,10 @@ func NewDateEntry() *DateEntry {
 	d.Entry.ActionItem = &widget.Button{Icon: theme.CalendarIcon(), Importance: widget.LowImportance, OnTapped: func() {
 		if d.popup == nil {
 			c := fyne.CurrentApp().Driver().CanvasForObject(d)
-			d.popup = widget.NewPopUp(container.NewVBox(d.cal, d.today), c)
+			d.popup = widget.NewPopUp(container.NewVBox(d.cal, container.NewBorder(nil, nil, nil, d.other, d.today)), c)
 		}
+
+		d.popup.Content.(*fyne.Container).Objects = d.popup.Content.(*fyne.Container).Objects[:2] // hide extended buttons
 		d.popup.ShowAtPosition(d.popupPosition())
 
 		// set date after show, because cal internal widgets are create in CreateRenderer
@@ -83,7 +86,41 @@ func NewDateEntry() *DateEntry {
 
 	d.today = &widget.Button{Text: "Aujourd'hui", Alignment: widget.ButtonAlignCenter, Importance: widget.MediumImportance, OnTapped: func() {
 		d.SetTime(time.Now())
-		d.popup.Hide()
+	}}
+	d.other = &widget.Button{Icon: theme.MenuIcon(), OnTapped: func() {
+		c := d.popup.Content.(*fyne.Container)
+		if len(c.Objects) <= 2 {
+			fnAddLine := func(text string, days, months int) {
+				fnSetDate := func(days, months int) {
+					if d.cal.SelectedDate.IsZero() {
+						d.cal.SelectedDate = time.Now() // pour éviter les calcules bizarres en partant de la date 0 ...
+					}
+
+					d.cal.SetSelectedDate(d.cal.SelectedDate.AddDate(0, months, days))
+					d.cal.SetDisplayedDate(d.cal.SelectedDate)
+
+					d.SetTime(d.cal.SelectedDate)
+				}
+
+				c.Add(container.NewBorder(nil, nil,
+					&widget.Button{Icon: theme.ContentRemoveIcon(), Importance: widget.MediumImportance, OnTapped: func() {
+						fnSetDate(-days, -months)
+					}},
+					&widget.Button{Icon: theme.ContentAddIcon(), Importance: widget.MediumImportance, OnTapped: func() {
+						fnSetDate(+days, +months)
+					}},
+					&widget.Label{Text: text, Alignment: fyne.TextAlignCenter},
+				))
+			}
+
+			fnAddLine("7 jours", 7, 0)
+			fnAddLine("10 jours", 10, 0)
+			fnAddLine("1 mois", 0, 1)
+			fnAddLine("3 mois", 0, 3)
+		} else {
+			c.Objects = c.Objects[:2]
+		}
+		d.popup.Refresh()
 	}}
 	return d
 }
