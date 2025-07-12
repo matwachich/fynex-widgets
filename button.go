@@ -110,9 +110,6 @@ func (b *Button) TappedSecondary(e *fyne.PointEvent) {
 		return
 	}
 	if b.OnMenuRequest != nil {
-		if b.Menu == nil {
-			b.Menu = &fyne.Menu{}
-		}
 		b.OnMenuRequest()
 	}
 	if b.Menu != nil && len(b.Menu.Items) > 0 {
