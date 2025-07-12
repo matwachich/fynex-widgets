@@ -33,6 +33,8 @@ type DateEntry struct {
 
 	popup *widget.PopUp
 	cal   *Calendar
+
+	clr   *widget.Button
 	today *widget.Button
 	other *widget.Button
 }
@@ -54,18 +56,11 @@ func NewDateEntry() *DateEntry {
 			d.calendarSetWithoutCallback(tm)
 		}
 	}
-	/*d.Entry.Validator = func(s string) (err error) { // la fonction n'est pas appelée! j'sais pas pourquoi
-		if s == "__/__/____" {
-			return
-		}
-		_, err = time.Parse("02/01/2006", s)
-		return
-	}*/
 
 	d.Entry.ActionItem = &widget.Button{Icon: theme.CalendarIcon(), Importance: widget.LowImportance, OnTapped: func() {
 		if d.popup == nil {
 			c := fyne.CurrentApp().Driver().CanvasForObject(d)
-			d.popup = widget.NewPopUp(container.NewVBox(d.cal, container.NewBorder(nil, nil, nil, d.other, d.today)), c)
+			d.popup = widget.NewPopUp(container.NewVBox(d.cal, container.NewBorder(nil, nil, d.clr, d.other, d.today)), c)
 		}
 
 		d.popup.Content.(*fyne.Container).Objects = d.popup.Content.(*fyne.Container).Objects[:2] // hide extended buttons
@@ -74,18 +69,13 @@ func NewDateEntry() *DateEntry {
 		// set date after show, because cal internal widgets are create in CreateRenderer
 		d.calendarSetWithoutCallback(d.GetTime())
 	}}
-	d.cal = NewCalendar(time.Now(), time.Time{}, func(t time.Time) {
-		// tapping the same time in calendar will unset selected time
-		if t.Format("20060102") == d.GetTime().Format("20060102") {
-			t = time.Time{}
-		}
-		d.SetTime(t)
-		d.popup.Hide()
-	})
-	//d.cal.Selectable = true
+	d.cal = NewCalendar(time.Now(), time.Time{}, d.SetTime) // Calendar will call onChanged only if selected date actually changed
 
 	d.today = &widget.Button{Text: "Aujourd'hui", Alignment: widget.ButtonAlignCenter, Importance: widget.MediumImportance, OnTapped: func() {
 		d.SetTime(time.Now())
+	}}
+	d.clr = &widget.Button{Icon: theme.ContentClearIcon(), OnTapped: func() {
+		d.SetTime(time.Time{})
 	}}
 	d.other = &widget.Button{Icon: theme.MenuIcon(), OnTapped: func() {
 		c := d.popup.Content.(*fyne.Container)

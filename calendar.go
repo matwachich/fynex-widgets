@@ -190,7 +190,13 @@ func (c *Calendar) daysOfMonth() []fyne.CanvasObject {
 	for d := start; d.Month() == start.Month(); d = d.AddDate(0, 0, 1) {
 		dayNum := d.Day()
 		b := widget.NewButton(strconv.Itoa(dayNum), func() {
+			oldSel := c.SelectedDate
 			c.SelectedDate = c.dateForButton(dayNum)
+
+			if oldSel.Format("02012006") == c.SelectedDate.Format("02012006") {
+				return
+			}
+
 			c.updateSelection()
 
 			if c.OnChanged != nil {
