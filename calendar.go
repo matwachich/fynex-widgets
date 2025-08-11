@@ -187,6 +187,9 @@ func (c *Calendar) daysOfMonth() []fyne.CanvasObject {
 		buttons = append(buttons, layout.NewSpacer())
 	}
 
+	startYear := start.Year()
+	nowY, nowYD := time.Now().Year(), time.Now().YearDay()
+
 	for d := start; d.Month() == start.Month(); d = d.AddDate(0, 0, 1) {
 		dayNum := d.Day()
 		b := widget.NewButton(strconv.Itoa(dayNum), func() {
@@ -203,10 +206,11 @@ func (c *Calendar) daysOfMonth() []fyne.CanvasObject {
 				c.OnChanged(c.SelectedDate)
 			}
 		})
-		b.Importance = widget.LowImportance
 
-		if /*c.Selectable &&*/ !c.SelectedDate.IsZero() && c.SelectedDate.Year() == c.displayedDate.Year() && c.SelectedDate.Month() == c.displayedDate.Month() && c.SelectedDate.Day() == dayNum {
+		if !c.SelectedDate.IsZero() && c.SelectedDate.Year() == c.displayedDate.Year() && c.SelectedDate.Month() == c.displayedDate.Month() && c.SelectedDate.Day() == dayNum {
 			b.Importance = widget.HighImportance
+		} else if nowY == startYear && nowYD == d.YearDay() {
+			b.Importance = widget.MediumImportance
 		} else {
 			b.Importance = widget.LowImportance
 		}
