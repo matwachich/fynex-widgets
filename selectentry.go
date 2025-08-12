@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type SelectEntryEx struct {
+type SelectEntry struct {
 	widget.SelectEntry
 
 	// custom callbacks
@@ -22,15 +22,16 @@ type SelectEntryEx struct {
 	minCols  int
 }
 
-func NewSelectEntryEx() *SelectEntryEx {
-	sel := &SelectEntryEx{}
+func NewSelectEntry(options []string) *SelectEntry {
+	sel := &SelectEntry{}
+	sel.SetOptions(options)
 	sel.Wrapping = fyne.TextTruncate
 	sel.ExtendBaseWidget(sel)
 	return sel
 }
 
-func (sel *SelectEntryEx) ReadOnly() bool { return sel.readOnly }
-func (sel *SelectEntryEx) SetReadOnly(b bool) {
+func (sel *SelectEntry) ReadOnly() bool { return sel.readOnly }
+func (sel *SelectEntry) SetReadOnly(b bool) {
 	sel.readOnly = b
 	if b {
 		sel.SelectEntry.Entry.ActionItem.(fyne.Disableable).Disable()
@@ -39,12 +40,12 @@ func (sel *SelectEntryEx) SetReadOnly(b bool) {
 	}
 }
 
-func (e *SelectEntryEx) SetMinColsVisible(c int) {
+func (e *SelectEntry) SetMinColsVisible(c int) {
 	e.minCols = c
 	e.Refresh()
 }
 
-func (e *SelectEntryEx) MinSize() fyne.Size {
+func (e *SelectEntry) MinSize() fyne.Size {
 	sz := e.SelectEntry.MinSize()
 	if e.minCols > 0 {
 		calc := fyne.MeasureText(strings.Repeat("M", e.minCols), theme.TextSize(), e.TextStyle).Width + 2*theme.InnerPadding() + 2*theme.InputBorderSize()
@@ -55,14 +56,8 @@ func (e *SelectEntryEx) MinSize() fyne.Size {
 	return sz
 }
 
-func (sel *SelectEntryEx) SetText(s string) {
-	sel.SelectEntry.CursorColumn = 0
-	sel.SelectEntry.CursorRow = 0
-	sel.SelectEntry.SetText(s)
-}
-
 // FocusGained is a hook called by the focus handling logic after this object gained the focus.
-func (sel *SelectEntryEx) FocusGained() {
+func (sel *SelectEntry) FocusGained() {
 	if sel.readOnly {
 		return
 	}
@@ -73,7 +68,7 @@ func (sel *SelectEntryEx) FocusGained() {
 }
 
 // FocusLost is a hook called by the focus handling logic after this object lost the focus.
-func (sel *SelectEntryEx) FocusLost() {
+func (sel *SelectEntry) FocusLost() {
 	sel.SelectEntry.FocusLost()
 	if sel.OnFocusLost != nil {
 		sel.OnFocusLost()
@@ -81,7 +76,7 @@ func (sel *SelectEntryEx) FocusLost() {
 }
 
 // TypedRune is a hook called by the input handling logic on text input events if this object is focused.
-func (sel *SelectEntryEx) TypedRune(r rune) {
+func (sel *SelectEntry) TypedRune(r rune) {
 	if sel.readOnly {
 		return
 	}
@@ -92,7 +87,7 @@ func (sel *SelectEntryEx) TypedRune(r rune) {
 }
 
 // TypedKey is a hook called by the input handling logic on key events if this object is focused.
-func (sel *SelectEntryEx) TypedKey(e *fyne.KeyEvent) {
+func (sel *SelectEntry) TypedKey(e *fyne.KeyEvent) {
 	if sel.readOnly {
 		switch e.Name {
 		case fyne.KeyEnter, fyne.KeyReturn, fyne.KeyBackspace, fyne.KeyDelete:
@@ -105,7 +100,7 @@ func (sel *SelectEntryEx) TypedKey(e *fyne.KeyEvent) {
 	sel.SelectEntry.TypedKey(e)
 }
 
-func (sel *SelectEntryEx) TypedShortcut(s fyne.Shortcut) {
+func (sel *SelectEntry) TypedShortcut(s fyne.Shortcut) {
 	if sel.readOnly {
 		switch s.(type) {
 		case *fyne.ShortcutPaste:

@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type SelectEx struct {
+type Select struct {
 	widget.Select
 
 	ToolTipable
@@ -19,8 +19,8 @@ type SelectEx struct {
 	OnTypedShortcut func(fyne.Shortcut) (block bool)
 }
 
-func NewSelectEx(options []string, onChanged func(s string)) *SelectEx {
-	sel := &SelectEx{}
+func NewSelect(options []string, onChanged func(s string)) *Select {
+	sel := &Select{}
 	sel.ToolTipable.parent = sel
 	sel.ExtendBaseWidget(sel)
 	sel.Options = options
@@ -29,7 +29,7 @@ func NewSelectEx(options []string, onChanged func(s string)) *SelectEx {
 }
 
 // FocusGained is a hook called by the focus handling logic after this object gained the focus.
-func (sel *SelectEx) FocusGained() {
+func (sel *Select) FocusGained() {
 	sel.Select.FocusGained()
 	if sel.OnFocusGained != nil {
 		sel.OnFocusGained()
@@ -37,7 +37,7 @@ func (sel *SelectEx) FocusGained() {
 }
 
 // FocusLost is a hook called by the focus handling logic after this object lost the focus.
-func (sel *SelectEx) FocusLost() {
+func (sel *Select) FocusLost() {
 	sel.Select.FocusLost()
 	if sel.OnFocusLost != nil {
 		sel.OnFocusLost()
@@ -45,7 +45,7 @@ func (sel *SelectEx) FocusLost() {
 }
 
 // TypedRune is a hook called by the input handling logic on text input events if this object is focused.
-func (sel *SelectEx) TypedRune(r rune) {
+func (sel *Select) TypedRune(r rune) {
 	if sel.OnTypedRune != nil && sel.OnTypedRune(r) {
 		return
 	}
@@ -53,14 +53,14 @@ func (sel *SelectEx) TypedRune(r rune) {
 }
 
 // TypedKey is a hook called by the input handling logic on key events if this object is focused.
-func (sel *SelectEx) TypedKey(e *fyne.KeyEvent) {
+func (sel *Select) TypedKey(e *fyne.KeyEvent) {
 	if sel.OnTypedKey != nil && sel.OnTypedKey(e) {
 		return
 	}
 	sel.Select.TypedKey(e)
 }
 
-func (sel *SelectEx) TypedShortcut(s fyne.Shortcut) {
+func (sel *Select) TypedShortcut(s fyne.Shortcut) {
 	if sel.OnTypedShortcut != nil && sel.OnTypedShortcut(s) {
 		return
 	}
@@ -68,19 +68,19 @@ func (sel *SelectEx) TypedShortcut(s fyne.Shortcut) {
 }
 
 // MouseIn is a hook that is called if the mouse pointer enters the element.
-func (sel *SelectEx) MouseIn(me *desktop.MouseEvent) {
+func (sel *Select) MouseIn(me *desktop.MouseEvent) {
 	sel.ToolTipable.MouseIn(me)
 	sel.Select.MouseIn(me)
 }
 
 // MouseMoved is a hook that is called if the mouse pointer moved over the element.
-func (sel *SelectEx) MouseMoved(me *desktop.MouseEvent) {
+func (sel *Select) MouseMoved(me *desktop.MouseEvent) {
 	sel.ToolTipable.MouseMoved(me)
 	sel.Select.MouseMoved(me)
 }
 
 // MouseOut is a hook that is called if the mouse pointer leaves the element.
-func (sel *SelectEx) MouseOut() {
+func (sel *Select) MouseOut() {
 	sel.ToolTipable.MouseOut()
 	sel.Select.MouseOut()
 }

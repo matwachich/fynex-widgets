@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type CheckEx struct {
+type Check struct {
 	widget.Check
 
 	ToolTipable
@@ -19,8 +19,8 @@ type CheckEx struct {
 	OnTypedShortcut func(fyne.Shortcut) (block bool)
 }
 
-func NewCheckEx(text string, changed func(bool)) *CheckEx {
-	c := &CheckEx{}
+func NewCheck(text string, changed func(bool)) *Check {
+	c := &Check{}
 	c.Check = widget.Check{
 		DisableableWidget: widget.DisableableWidget{},
 		Text:              text,
@@ -32,7 +32,7 @@ func NewCheckEx(text string, changed func(bool)) *CheckEx {
 }
 
 // FocusGained is a hook called by the focus handling logic after this object gained the focus.
-func (c *CheckEx) FocusGained() {
+func (c *Check) FocusGained() {
 	c.Check.FocusGained()
 	if c.OnFocusGained != nil {
 		c.OnFocusGained()
@@ -40,7 +40,7 @@ func (c *CheckEx) FocusGained() {
 }
 
 // FocusLost is a hook called by the focus handling logic after this object lost the focus.
-func (c *CheckEx) FocusLost() {
+func (c *Check) FocusLost() {
 	c.Check.FocusLost()
 	if c.OnFocusLost != nil {
 		c.OnFocusLost()
@@ -48,7 +48,7 @@ func (c *CheckEx) FocusLost() {
 }
 
 // TypedRune is a hook called by the input handling logic on text input events if this object is focused.
-func (c *CheckEx) TypedRune(r rune) {
+func (c *Check) TypedRune(r rune) {
 	if c.OnTypedRune != nil && c.OnTypedRune(r) {
 		return
 	}
@@ -56,7 +56,7 @@ func (c *CheckEx) TypedRune(r rune) {
 }
 
 // TypedKey is a hook called by the input handling logic on key events if this object is focused.
-func (c *CheckEx) TypedKey(k *fyne.KeyEvent) {
+func (c *Check) TypedKey(k *fyne.KeyEvent) {
 	/*if k.Name == fyne.KeyEnter {
 		c.TypedKey(&fyne.KeyEvent{
 			Name: fyne.KeySpace,
@@ -68,26 +68,26 @@ func (c *CheckEx) TypedKey(k *fyne.KeyEvent) {
 	c.Check.TypedKey(k)
 }
 
-func (c *CheckEx) TypedShortcut(s fyne.Shortcut) {
+func (c *Check) TypedShortcut(s fyne.Shortcut) {
 	if c.OnTypedShortcut != nil && c.OnTypedShortcut(s) {
 		return
 	}
 }
 
 // MouseIn is a hook that is called if the mouse pointer enters the element.
-func (c *CheckEx) MouseIn(me *desktop.MouseEvent) {
+func (c *Check) MouseIn(me *desktop.MouseEvent) {
 	c.ToolTipable.MouseIn(me)
 	c.Check.MouseIn(me)
 }
 
 // MouseMoved is a hook that is called if the mouse pointer moved over the element.
-func (c *CheckEx) MouseMoved(me *desktop.MouseEvent) {
+func (c *Check) MouseMoved(me *desktop.MouseEvent) {
 	c.ToolTipable.MouseMoved(me)
 	c.Check.MouseMoved(me)
 }
 
 // MouseOut is a hook that is called if the mouse pointer leaves the element.
-func (c *CheckEx) MouseOut() {
+func (c *Check) MouseOut() {
 	c.ToolTipable.MouseOut()
 	c.Check.MouseOut()
 }
