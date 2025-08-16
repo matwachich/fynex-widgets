@@ -17,6 +17,7 @@ type FieldID = string
 
 type inputField struct {
 	fyne.Widget
+	label string
 	check *widget.Check
 }
 
@@ -82,13 +83,16 @@ func (w *InputFields) AddSeparator() {
 	w.currentVBox().Add(widget.NewSeparator())
 }
 
-func (w *InputFields) AddTitle(id FieldID, text string, style fyne.TextStyle, alignement fyne.TextAlign) {
+func (w *InputFields) AddTitle(text string, style fyne.TextStyle, alignement fyne.TextAlign) {
 	w.currentVBox().Add(&widget.Label{Text: text, TextStyle: style, Alignment: alignement})
 }
 
-func (w *InputFields) AddTitleMkd(id FieldID, text string) {
+func (w *InputFields) AddTitleMkd(text string) {
 	w.currentVBox().Add(widget.NewRichTextFromMarkdown(text))
 }
+
+// ----------------------------------------------------------------------------
+// Inputs
 
 func (w *InputFields) AddLabel(id FieldID, label string, text string, style fyne.TextStyle, alignement fyne.TextAlign) {
 	w.addWidget(id, false, label, &widget.Label{
@@ -97,9 +101,6 @@ func (w *InputFields) AddLabel(id FieldID, label string, text string, style fyne
 		TextStyle: style,
 	})
 }
-
-// ----------------------------------------------------------------------------
-// Inputs
 
 func (w *InputFields) AddText(id FieldID, nullable bool, label string, value string, lines int) {
 	w.dummyId(&id)
@@ -326,6 +327,13 @@ func (w *InputFields) Widget(id FieldID) fyne.Widget {
 	return nil
 }
 
+func (w *InputFields) Label(id FieldID) string {
+	if f, ok := w.inputs[id]; ok {
+		return f.label
+	}
+	return ""
+}
+
 func (w *InputFields) SetNull(id FieldID, b bool) {
 	if f, ok := w.inputs[id]; ok {
 		if f.check != nil {
@@ -445,7 +453,7 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 
 	var cnt fyne.CanvasObject
 
-	f := &inputField{Widget: wid}
+	f := &inputField{Widget: wid, label: label}
 	if dis, ok := wid.(fyne.Disableable); ok && nullable {
 		f.check = widget.NewCheck("", func(b bool) {
 			if b {
