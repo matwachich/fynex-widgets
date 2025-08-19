@@ -219,17 +219,17 @@ func (w *InputFields) ReadString(id FieldID) (ret string) {
 		ret = wid.GetText()
 	case *NumEntry:
 		ret = wid.Text
-		/*if ret == "" {
-			ret = "0"
-			if wid.Float {
-				ret += ".0"
-			}
-		}*/
 	case *widget.Select:
+		ret = wid.Selected
+	case *Select:
 		ret = wid.Selected
 	case *widget.SelectEntry:
 		ret = wid.Text
+	case *SelectEntry:
+		ret = wid.Text
 	case *widget.Check:
+		ret = strconv.FormatBool(wid.Checked)
+	case *Check:
 		ret = strconv.FormatBool(wid.Checked)
 	case *widget.CheckGroup:
 		ret = strings.Join(wid.Selected, "|")
@@ -264,9 +264,17 @@ func (w *InputFields) WriteString(id FieldID, value string) {
 		wid.SetText(value)
 	case *widget.Select:
 		wid.SetSelected(value)
+	case *Select:
+		wid.SetSelected(value)
 	case *widget.SelectEntry:
 		wid.SetText(value)
+	case *SelectEntry:
+		wid.SetText(value)
 	case *widget.Check:
+		if b, err := strconv.ParseBool(value); err == nil {
+			wid.SetChecked(b)
+		}
+	case *Check:
 		if b, err := strconv.ParseBool(value); err == nil {
 			wid.SetChecked(b)
 		}
@@ -288,7 +296,11 @@ func (w *InputFields) WriteOptions(id FieldID, options []string) {
 	switch wid := f.Widget.(type) {
 	case *widget.Select:
 		wid.SetOptions(options)
+	case *Select:
+		wid.SetOptions(options)
 	case *widget.SelectEntry:
+		wid.SetOptions(options)
+	case *SelectEntry:
 		wid.SetOptions(options)
 	case *widget.CheckGroup:
 		wid.Options = options
