@@ -31,6 +31,7 @@ type InputFields struct {
 	OnChanged func(id FieldID)
 	OnAction  func(id FieldID)
 
+	OnTypedKey      func(ke *fyne.KeyEvent) (handled bool)
 	OnTypedShortcut func(s fyne.Shortcut) (handled bool)
 
 	inputs map[FieldID]*inputField
@@ -40,6 +41,12 @@ type InputFields struct {
 	tabs *container.AppTabs
 }
 
+func (w *InputFields) typedKey(ke *fyne.KeyEvent) (handled bool) {
+	if w.OnTypedKey != nil {
+		handled = w.OnTypedKey(ke)
+	}
+	return
+}
 func (w *InputFields) typedShortcut(s fyne.Shortcut) (handled bool) {
 	if w.OnTypedShortcut != nil {
 		handled = w.OnTypedShortcut(s)
@@ -107,6 +114,7 @@ func (w *InputFields) AddText(id FieldID, nullable bool, label string, value str
 	wid := NewEntryEx(lines)
 	wid.Text = value
 	wid.OnChanged = func(_ string) { w.onChanged(id) }
+	wid.OnTypedKey = w.typedKey
 	wid.OnTypedShortcut = w.typedShortcut
 	w.addWidget(id, nullable, label, wid)
 }
@@ -117,6 +125,7 @@ func (w *InputFields) AddPassword(id FieldID, nullable bool, label string, value
 	wid.Text = value
 	wid.Password = true
 	wid.OnChanged = func(_ string) { w.onChanged(id) }
+	wid.OnTypedKey = w.typedKey
 	wid.OnTypedShortcut = w.typedShortcut
 	w.addWidget(id, nullable, label, wid)
 }
@@ -132,6 +141,7 @@ func (w *InputFields) AddNumber(id FieldID, nullable bool, label string, value s
 	} else {
 		wid.OnChangedFloat = func(_ float64) { w.onChanged(id) }
 	}
+	wid.OnTypedKey = w.typedKey
 	wid.OnTypedShortcut = w.typedShortcut
 	w.addWidget(id, nullable, label, wid)
 }
@@ -141,6 +151,7 @@ func (w *InputFields) AddDate(id FieldID, nullable bool, label string, value str
 	wid := NewDateEntry()
 	wid.SetText(value)
 	wid.OnChanged = func(_ time.Time) { w.onChanged(id) }
+	wid.OnTypedKey = w.typedKey
 	wid.OnTypedShortcut = w.typedShortcut
 	w.addWidget(id, nullable, label, wid)
 }
@@ -151,12 +162,14 @@ func (w *InputFields) AddSelect(id FieldID, nullable bool, label string, options
 		wid := NewSelectEntry(options)
 		wid.Text = value
 		wid.OnChanged = func(_ string) { w.onChanged(id) }
+		wid.OnTypedKey = w.typedKey
 		wid.OnTypedShortcut = w.typedShortcut
 		w.addWidget(id, nullable, label, wid)
 	} else {
 		wid := NewSelect(options, nil)
 		wid.Selected = value
 		wid.OnChanged = func(_ string) { w.onChanged(id) }
+		wid.OnTypedKey = w.typedKey
 		wid.OnTypedShortcut = w.typedShortcut
 		w.addWidget(id, nullable, label, wid)
 	}
@@ -166,6 +179,7 @@ func (w *InputFields) AddCheck(id FieldID, nullable bool, label string, text str
 	w.dummyId(&id)
 	wid := NewCheck(text, func(_ bool) { w.onChanged(id) })
 	wid.Checked = value
+	wid.OnTypedKey = w.typedKey
 	wid.OnTypedShortcut = w.typedShortcut
 	w.addWidget(id, nullable, label, wid)
 }
