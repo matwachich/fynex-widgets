@@ -1,6 +1,7 @@
 package wx
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -212,6 +213,153 @@ func (w *InputFields) AddActionButton(id FieldID, label, btnText string, importa
 // ----------------------------------------------------------------------------
 // Lire/Ecrire les inputs
 
+func (w *InputFields) Read(id FieldID) (ret any) {
+	f := w.inputs[id]
+	if f == nil {
+		return
+	}
+
+	if f.check != nil && !f.check.Checked {
+		return nil
+	}
+
+	switch wid := f.Widget.(type) {
+	case *widget.Label:
+		ret = wid.Text
+	case *EntryEx:
+		ret = wid.Text
+	case *widget.Entry: // password
+		ret = wid.Text
+	case *DateEntry:
+		ret = wid.GetTime()
+	case *NumEntry:
+		if wid.Float {
+			ret = wid.GetFloat()
+		} else {
+			ret = wid.GetInt()
+		}
+	case *widget.Select:
+		ret = wid.Selected
+	case *Select:
+		ret = wid.Selected
+	case *widget.SelectEntry:
+		ret = wid.Text
+	case *SelectEntry:
+		ret = wid.Text
+	case *widget.Check:
+		ret = wid.Checked
+	case *Check:
+		ret = wid.Checked
+	case *widget.CheckGroup:
+		ret = wid.Selected
+	case *widget.RadioGroup:
+		ret = wid.Selected
+	case *widget.Button:
+		ret = wid.Text
+	}
+
+	return
+}
+
+func (w *InputFields) Write(id FieldID, value any) {
+	f := w.inputs[id]
+	if f == nil {
+		return
+	}
+
+	switch wid := f.Widget.(type) {
+	case *widget.Label:
+		if v, ok := value.(string); ok {
+			wid.SetText(v)
+		}
+	case *EntryEx:
+		if v, ok := value.(string); ok {
+			wid.SetText(v)
+		}
+	case *widget.Entry: // password
+		if v, ok := value.(string); ok {
+			wid.SetText(v)
+		}
+	case *DateEntry:
+		if t, ok := value.(time.Time); ok {
+			wid.SetTime(t)
+		}
+	case *NumEntry:
+		switch value.(type) {
+		case int, int8, int16, int32, int64:
+			wid.SetInt(int(reflect.ValueOf(value).Int()))
+		case uint, uint8, uint16, uint32, uint64:
+			wid.SetInt(int(reflect.ValueOf(value).Uint()))
+		case float32, float64:
+			if wid.Float {
+				wid.SetFloat(reflect.ValueOf(value).Float())
+			} else {
+				wid.SetInt(int(reflect.ValueOf(value).Float()))
+			}
+		}
+	case *widget.Select:
+		if v, ok := value.(string); ok {
+			wid.SetSelected(v)
+		}
+	case *Select:
+		if v, ok := value.(string); ok {
+			wid.SetSelected(v)
+		}
+	case *widget.SelectEntry:
+		if v, ok := value.(string); ok {
+			wid.SetText(v)
+		}
+	case *SelectEntry:
+		if v, ok := value.(string); ok {
+			wid.SetText(v)
+		}
+	case *widget.Check:
+		if b, ok := value.(bool); ok {
+			wid.SetChecked(b)
+		}
+	case *Check:
+		if b, ok := value.(bool); ok {
+			wid.SetChecked(b)
+		}
+	case *widget.CheckGroup:
+		if v, ok := value.([]string); ok {
+			wid.SetSelected(v)
+		}
+	case *widget.RadioGroup:
+		if v, ok := value.(string); ok {
+			wid.SetSelected(v)
+		}
+	case *widget.Button:
+		if v, ok := value.(string); ok {
+			wid.SetText(v)
+		}
+	}
+}
+
+func (w *InputFields) WriteOptions(id FieldID, options []string) {
+	f := w.inputs[id]
+	if f == nil {
+		return
+	}
+
+	switch wid := f.Widget.(type) {
+	case *widget.Select:
+		wid.SetOptions(options)
+	case *Select:
+		wid.SetOptions(options)
+	case *widget.SelectEntry:
+		wid.SetOptions(options)
+	case *SelectEntry:
+		wid.SetOptions(options)
+	case *widget.CheckGroup:
+		wid.Options = options
+		wid.Refresh()
+	case *widget.RadioGroup:
+		wid.Options = options
+		wid.Refresh()
+	}
+}
+
 func (w *InputFields) ReadString(id FieldID) (ret string) {
 	f := w.inputs[id]
 	if f == nil {
@@ -298,30 +446,6 @@ func (w *InputFields) WriteString(id FieldID, value string) {
 		wid.SetSelected(value)
 	case *widget.Button:
 		wid.SetText(value)
-	}
-}
-
-func (w *InputFields) WriteOptions(id FieldID, options []string) {
-	f := w.inputs[id]
-	if f == nil {
-		return
-	}
-
-	switch wid := f.Widget.(type) {
-	case *widget.Select:
-		wid.SetOptions(options)
-	case *Select:
-		wid.SetOptions(options)
-	case *widget.SelectEntry:
-		wid.SetOptions(options)
-	case *SelectEntry:
-		wid.SetOptions(options)
-	case *widget.CheckGroup:
-		wid.Options = options
-		wid.Refresh()
-	case *widget.RadioGroup:
-		wid.Options = options
-		wid.Refresh()
 	}
 }
 
