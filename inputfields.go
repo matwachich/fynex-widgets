@@ -1,6 +1,7 @@
 package wx
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -271,18 +272,26 @@ func (w *InputFields) Write(id FieldID, value any) {
 	case *widget.Label:
 		if v, ok := value.(string); ok {
 			wid.SetText(v)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *EntryEx:
 		if v, ok := value.(string); ok {
 			wid.SetText(v)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *widget.Entry: // password
 		if v, ok := value.(string); ok {
 			wid.SetText(v)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *DateEntry:
 		if t, ok := value.(time.Time); ok {
 			wid.SetTime(t)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *NumEntry:
 		switch value.(type) {
@@ -296,45 +305,87 @@ func (w *InputFields) Write(id FieldID, value any) {
 			} else {
 				wid.SetInt(int(reflect.ValueOf(value).Float()))
 			}
+		default:
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *widget.Select:
 		if v, ok := value.(string); ok {
 			wid.SetSelected(v)
+		} else {
+			wid.SetSelected(fmt.Sprint(value))
 		}
 	case *Select:
 		if v, ok := value.(string); ok {
 			wid.SetSelected(v)
+		} else {
+			wid.SetSelected(fmt.Sprint(value))
 		}
 	case *widget.SelectEntry:
 		if v, ok := value.(string); ok {
 			wid.SetText(v)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *SelectEntry:
 		if v, ok := value.(string); ok {
 			wid.SetText(v)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	case *widget.Check:
 		if b, ok := value.(bool); ok {
 			wid.SetChecked(b)
+		} else {
+			if b, err := strconv.ParseBool(fmt.Sprint(value)); err == nil {
+				wid.SetChecked(b)
+			}
 		}
 	case *Check:
 		if b, ok := value.(bool); ok {
 			wid.SetChecked(b)
+		} else {
+			if b, err := strconv.ParseBool(fmt.Sprint(value)); err == nil {
+				wid.SetChecked(b)
+			}
 		}
 	case *widget.CheckGroup:
 		if v, ok := value.([]string); ok {
 			wid.SetSelected(v)
+		} else {
+			wid.SetSelected(strings.Split(fmt.Sprint(value), "|"))
 		}
 	case *widget.RadioGroup:
 		if v, ok := value.(string); ok {
 			wid.SetSelected(v)
+		} else {
+			wid.SetSelected(fmt.Sprint(value))
 		}
 	case *widget.Button:
 		if v, ok := value.(string); ok {
 			wid.SetText(v)
+		} else {
+			wid.SetText(fmt.Sprint(value))
 		}
 	}
 }
+
+//
+
+func (w *InputFields) ReadAll() (data map[string]any) {
+	data = make(map[string]any)
+	for _, id := range w.order {
+		data[id] = w.Read(id)
+	}
+	return
+}
+
+func (w *InputFields) WriteAll(data map[string]any) {
+	for k, v := range data {
+		w.Write(k, v)
+	}
+}
+
+//
 
 func (w *InputFields) WriteOptions(id FieldID, options []string) {
 	f := w.inputs[id]
@@ -360,7 +411,9 @@ func (w *InputFields) WriteOptions(id FieldID, options []string) {
 	}
 }
 
-func (w *InputFields) ReadString(id FieldID) (ret string) {
+//
+
+/*func (w *InputFields) ReadString(id FieldID) (ret string) {
 	f := w.inputs[id]
 	if f == nil {
 		return
@@ -449,6 +502,8 @@ func (w *InputFields) WriteString(id FieldID, value string) {
 	}
 }
 
+//
+
 func (w *InputFields) ReadAllString() (ret map[FieldID]string) {
 	ret = make(map[FieldID]string)
 	for _, id := range w.order {
@@ -461,7 +516,7 @@ func (w *InputFields) WriteAllString(data map[FieldID]string) {
 	for k, v := range data {
 		w.WriteString(k, v)
 	}
-}
+}*/
 
 // ----------------------------------------------------------------------------
 // Manipuler les inputs
