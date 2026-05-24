@@ -349,9 +349,19 @@ func (w *InputFields) Write(id FieldID, value any) {
 			}
 		}
 	case *widget.CheckGroup:
-		if v, ok := value.([]string); ok {
+		switch v := value.(type) {
+		case []string:
 			wid.SetSelected(v)
-		} else {
+		case []any:
+			var ok bool
+			s := make([]string, len(v))
+			for i := range v {
+				if s[i], ok = v[i].(string); !ok {
+					s[i] = fmt.Sprint(v[i])
+				}
+			}
+			wid.SetSelected(s)
+		default:
 			wid.SetSelected(strings.Split(fmt.Sprint(value), "|"))
 		}
 	case *widget.RadioGroup:

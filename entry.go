@@ -205,12 +205,14 @@ func (e *EntryEx) TappedSecondary(p *fyne.PointEvent) {
 		menu = fyne.NewMenu("", undo, redo, fyne.NewMenuItemSeparator(), cut, copy, paste, selAll)
 	}
 
-	menu.Items = append(menu.Items, fyne.NewMenuItemSeparator())
-	if e.Menu != nil {
-		menu.Items = append(menu.Items, e.Menu.Items...)
-	}
-	if e.DisabledMenu != nil {
-		menu.Items = append(menu.Items, e.DisabledMenu.Items...)
+	if !e.Disabled() {
+		menu.Items = append(menu.Items, fyne.NewMenuItemSeparator())
+		if e.Menu != nil {
+			menu.Items = append(menu.Items, e.Menu.Items...)
+		}
+		if e.DisabledMenu != nil {
+			menu.Items = append(menu.Items, e.DisabledMenu.Items...)
+		}
 	}
 
 	widget.ShowPopUpMenuAtPosition(menu, fyne.CurrentApp().Driver().CanvasForObject(e), p.AbsolutePosition)
