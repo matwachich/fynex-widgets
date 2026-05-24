@@ -656,9 +656,8 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 
 	w.dummyId(&id)
 
-	var cnt fyne.CanvasObject
-
 	f := &inputField{Widget: wid, label: label}
+
 	if dis, ok := wid.(fyne.Disableable); ok && nullable {
 		f.check = widget.NewCheck("", func(b bool) {
 			if b {
@@ -669,28 +668,18 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 			w.onChanged(id)
 		})
 		f.check.Checked = true
-
-		cnt = container.NewBorder(nil, nil, f.check, nil, wid)
-	} else {
-		cnt = wid
 	}
 
-	switch wid.(type) {
-	case *widget.Button:
-		if label == "" {
-			w.currentVBox().Add(cnt)
-		} else {
-			form := w.currentForm()
-			form.Objects = append(form.Objects,
-				&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
-				cnt,
-			)
-		}
-	default:
-		form := w.currentForm()
+	form := w.currentForm()
+	if f.check == nil { // button always have check == nil
 		form.Objects = append(form.Objects,
 			&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
-			cnt,
+			wid,
+		)
+	} else {
+		form.Objects = append(form.Objects,
+			container.NewBorder(nil, nil, nil, f.check, &widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}}),
+			wid,
 		)
 	}
 
