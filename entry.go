@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/lang"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"golang.org/x/text/cases"
@@ -173,14 +174,47 @@ func (e *EntryEx) TypedShortcut(s fyne.Shortcut) {
 }
 
 func (e *EntryEx) TappedSecondary(p *fyne.PointEvent) {
-	menu := e.Menu
-	if e.Disabled() {
-		menu = e.DisabledMenu
-	}
-	if menu == nil {
+	if e.Menu == nil && e.DisabledMenu == nil {
 		e.Entry.TappedSecondary(p)
 		return
 	}
+
+	clipboard := fyne.CurrentApp().Clipboard()
+
+	undo := fyne.NewMenuItem(lang.L("Undo"), e.Entry.Undo)
+	redo := fyne.NewMenuItem(lang.L("Redo"), e.Entry.Redo)
+	cut := fyne.NewMenuItem(lang.L("Cut"), func() {
+		e.Entry.TypedShortcut(&fyne.ShortcutCut{Clipboard: clipboard})
+	})
+	copy := fyne.NewMenuItem(lang.L("Copy"), func() {
+		e.Entry.TypedShortcut(&fyne.ShortcutCopy{Clipboard: clipboard})
+	})
+	paste := fyne.NewMenuItem(lang.L("Paste"), func() {
+		e.Entry.TypedShortcut(&fyne.ShortcutPaste{Clipboard: clipboard})
+	})
+	selAll := fyne.NewMenuItem(lang.L("Select all"), func() {
+		e.Entry.TypedShortcut(&fyne.ShortcutSelectAll{})
+	})
+
+	var menu *fyne.Menu
+	if e.Disabled() {
+		menu = fyne.NewMenu("", copy, selAll)
+	} else if e.Password {
+		menu = fyne.NewMenu("", paste, selAll)
+	} else {
+		menu = fyne.NewMenu("", undo, redo, fyne.NewMenuItemSeparator(), cut, copy, paste, selAll)
+	}
+
+	if !e.Disabled() {
+		menu.Items = append(menu.Items, fyne.NewMenuItemSeparator())
+		if e.Menu != nil {
+			menu.Items = append(menu.Items, e.Menu.Items...)
+		}
+		if e.DisabledMenu != nil {
+			menu.Items = append(menu.Items, e.DisabledMenu.Items...)
+		}
+	}
+
 	widget.ShowPopUpMenuAtPosition(menu, fyne.CurrentApp().Driver().CanvasForObject(e), p.AbsolutePosition)
 }
 
