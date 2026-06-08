@@ -258,11 +258,7 @@ func (w *InputFields) Read(id FieldID) (ret any) {
 			ret = []string{}
 		}
 	case *widget.RadioGroup:
-		if len(wid.Selected) > 0 {
-			ret = wid.Selected
-		} else {
-			ret = []string{}
-		}
+		ret = wid.Selected
 	case *widget.Button:
 		ret = wid.Text
 	}
