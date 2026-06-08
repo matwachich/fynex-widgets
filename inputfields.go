@@ -19,7 +19,7 @@ type FieldID = string
 
 type inputField struct {
 	fyne.Widget
-	label string
+	label *widget.Label
 	check *widget.Check
 }
 
@@ -546,9 +546,16 @@ func (w *InputFields) Widget(id FieldID) fyne.Widget {
 	return nil
 }
 
-func (w *InputFields) Label(id FieldID) string {
+func (w *InputFields) SetLabel(id FieldID, label string) {
 	if f, ok := w.inputs[id]; ok {
-		return f.label
+		f.label.SetText(label)
+		w.Refresh()
+	}
+}
+
+func (w *InputFields) GetLabel(id FieldID) string {
+	if f, ok := w.inputs[id]; ok {
+		return f.label.Text
 	}
 	return ""
 }
@@ -670,7 +677,7 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 
 	w.dummyId(&id)
 
-	f := &inputField{Widget: wid, label: label}
+	f := &inputField{Widget: wid, label: &widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}}}
 
 	if dis, ok := wid.(fyne.Disableable); ok && nullable {
 		f.check = widget.NewCheck("", func(b bool) {
@@ -686,13 +693,10 @@ func (w *InputFields) addWidget(id FieldID, nullable bool, label string, wid fyn
 
 	form := w.currentForm()
 	if f.check == nil { // button always have check == nil
-		form.Objects = append(form.Objects,
-			&widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}},
-			wid,
-		)
+		form.Objects = append(form.Objects, f.label, wid)
 	} else {
 		form.Objects = append(form.Objects,
-			container.NewBorder(nil, nil, nil, f.check, &widget.Label{Text: label, TextStyle: fyne.TextStyle{Bold: true}}),
+			container.NewBorder(nil, nil, nil, f.check, f.label),
 			wid,
 		)
 	}
